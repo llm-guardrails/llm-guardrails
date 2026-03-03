@@ -1,0 +1,31 @@
+/**
+ * @openclaw-guardrails/mastra
+ *
+ * Mastra integration for OpenClaw Guardrails.
+ * Add guardrails to Mastra agents with a simple decorator.
+ */
+
+// Main decorator
+export { withGuardrails } from './decorator';
+export type {
+  MastraGuardrailConfig,
+  GuardedAgent,
+} from './decorator';
+
+// Helpers
+export {
+  createGuardedAgentFactory,
+  quickGuard,
+  guardAgents,
+  createPerAgentGuard,
+  conditionalGuard,
+  toolSpecificGuards,
+  guardWithMonitoring,
+} from './helpers';
+
+// Re-export core types for convenience
+export type {
+  GuardrailConfig,
+  GuardrailResult,
+  GuardResult,
+} from '@openclaw-guardrails/core';

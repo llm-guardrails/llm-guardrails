@@ -1,0 +1,55 @@
+{
+  "name": "@openclaw-guardrails/mastra",
+  "version": "0.9.0",
+  "description": "Mastra integration for OpenClaw Guardrails - Add guardrails to Mastra agents and LLMs",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "mastra",
+    "guardrails",
+    "llm",
+    "ai-safety",
+    "agents",
+    "typescript",
+    "decorator"
+  ],
+  "author": "OpenClaw Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openclaw/guardrails.git",
+    "directory": "packages/mastra"
+  },
+  "bugs": {
+    "url": "https://github.com/openclaw/guardrails/issues"
+  },
+  "homepage": "https://github.com/openclaw/guardrails#readme",
+  "peerDependencies": {
+    "@mastra/core": ">=0.1.0",
+    "@openclaw-guardrails/core": "^0.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}
