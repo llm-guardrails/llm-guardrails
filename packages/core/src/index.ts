@@ -21,6 +21,12 @@ export { AdultContentGuard } from './guards/AdultContentGuard';
 export { CopyrightGuard } from './guards/CopyrightGuard';
 export { ProfanityGuard } from './guards/ProfanityGuard';
 
+// Behavioral Analysis
+export { BehavioralGuard } from './behavioral/BehavioralGuard';
+export { PatternMatcher } from './behavioral/PatternMatcher';
+export { MemoryStore } from './behavioral/stores/MemoryStore';
+export { BUILTIN_PATTERNS } from './behavioral/patterns/builtin';
+
 // Types
 export type {
   // Core types

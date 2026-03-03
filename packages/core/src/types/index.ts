@@ -182,6 +182,20 @@ export interface DetectedThreat {
   evidence: ToolCallEvent[];
   /** Detection timestamp */
   timestamp: number;
+  /** Pattern description */
+  description?: string;
+}
+
+/**
+ * Single step in a threat pattern
+ */
+export interface PatternStep {
+  /** Tool name pattern (string or regex) */
+  tool: string | RegExp;
+  /** Argument patterns (optional) */
+  args?: Record<string, string | RegExp>;
+  /** Time window since previous step in milliseconds (optional) */
+  timeWindow?: number;
 }
 
 /**
@@ -195,21 +209,11 @@ export interface ThreatPattern {
   /** Severity level */
   severity: 'low' | 'medium' | 'high' | 'critical';
   /** Sequence of steps to match */
-  sequence: PatternStep[];
-  /** Time window in milliseconds */
-  timeWindow: number;
-}
-
-/**
- * Single step in a threat pattern
- */
-export interface PatternStep {
-  /** Tool name pattern (regex) */
-  tool: string | RegExp;
-  /** Argument patterns (optional) */
-  args?: Record<string, string | RegExp>;
-  /** Optional condition function */
-  condition?: (event: ToolCallEvent) => boolean;
+  steps: PatternStep[];
+  /** Maximum time between first and last step in milliseconds */
+  maxTimeWindow: number;
+  /** Minimum occurrences of pattern (default: 1) */
+  minOccurrences?: number;
 }
 
 /**
@@ -222,8 +226,8 @@ export interface BehavioralConfig {
   patterns?: ThreatPattern[];
   /** Storage backend */
   storage?: 'memory' | 'sqlite' | 'redis';
-  /** Storage configuration */
-  storageConfig?: Record<string, unknown>;
+  /** Custom session store */
+  customStore?: ISessionStore;
   /** Session TTL in milliseconds (default: 1 hour) */
   sessionTTL?: number;
 }
@@ -238,6 +242,8 @@ export interface ISessionStore {
   getEvents(sessionId: string, since?: number): Promise<ToolCallEvent[]>;
   /** Cleanup old sessions */
   cleanup(olderThan: number): Promise<void>;
+  /** Get all active sessions */
+  getActiveSessions(): Promise<string[]>;
 }
 
 // ============================================================================
