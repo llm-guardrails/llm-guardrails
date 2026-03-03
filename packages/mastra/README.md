@@ -471,6 +471,6 @@ MIT
 
 ## Support
 
-- 📖 [Documentation](https://github.com/openclaw/guardrails)
-- 🐛 [Issues](https://github.com/openclaw/guardrails/issues)
-- 💬 [Discussions](https://github.com/openclaw/guardrails/discussions)
+- 📖 [Documentation](https://github.com/llm-guardrails/llm-guardrails)
+- 🐛 [Issues](https://github.com/llm-guardrails/llm-guardrails/issues)
+- 💬 [Discussions](https://github.com/llm-guardrails/llm-guardrails/discussions)

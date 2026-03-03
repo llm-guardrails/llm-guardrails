@@ -343,7 +343,7 @@ Contributions welcome! This project is under active development.
 
 ```bash
 # Clone
-git clone https://github.com/openclaw/guardrails.git
+git clone https://github.com/llm-guardrails/llm-guardrails.git
 
 # Install
 npm install
