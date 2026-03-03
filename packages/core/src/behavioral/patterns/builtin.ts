@@ -33,7 +33,7 @@ export const CREDENTIAL_THEFT: ThreatPattern = {
   steps: [
     {
       tool: /read|env|config|credentials/i,
-      args: { path: /(api.*key|token|password|secret|credentials)/i },
+      args: { path: /(\.env|api.*key|token|password|secret|credentials|config\.json|\.aws|\.ssh)/i },
     },
     {
       tool: /write|http|post|fetch/i,

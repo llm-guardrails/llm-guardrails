@@ -27,16 +27,18 @@ export class ProfanityGuard extends HybridGuard {
     const lowerInput = input.toLowerCase();
 
     for (const word of this.profaneWords) {
-      const regex = new RegExp(`\\b${word}\\w*\\b`, 'gi');
+      // Match exact word or with common suffixes (ing, ed, er, s)
+      // But NOT as part of other words (e.g., "hell" should not match "hello")
+      const regex = new RegExp(`\\b${word}(s|ing|ed|er)?\\b(?![a-z])`, 'gi');
       const matches = lowerInput.match(regex);
       if (matches) {
         count += matches.length;
       }
     }
 
-    if (count >= 3) score = 0.9;
-    else if (count === 2) score = 0.75;
-    else if (count === 1) score = 0.6;
+    if (count >= 3) score = 1.0;
+    else if (count === 2) score = 0.95;
+    else if (count === 1) score = 0.9;
 
     return {
       score,

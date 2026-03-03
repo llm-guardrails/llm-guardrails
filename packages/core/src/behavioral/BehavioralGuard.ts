@@ -31,8 +31,43 @@ export class BehavioralGuard implements Guard {
     }
 
     // Initialize pattern matcher
-    const patterns = config.patterns || BUILTIN_PATTERNS;
+    const patterns = this.resolvePatterns(config.patterns || BUILTIN_PATTERNS);
     this.matcher = new PatternMatcher(patterns);
+  }
+
+  /**
+   * Resolve pattern names to pattern objects
+   */
+  private resolvePatterns(patterns: any[]): any[] {
+    const patternMap: Record<string, any> = {
+      'file-exfiltration': BUILTIN_PATTERNS.find((p: any) => p.name === 'file-exfiltration'),
+      'credential-theft': BUILTIN_PATTERNS.find((p: any) => p.name === 'credential-theft'),
+      'escalation-attempts': BUILTIN_PATTERNS.find((p: any) => p.name === 'escalation-attempts'),
+      'data-exfil-via-code': BUILTIN_PATTERNS.find((p: any) => p.name === 'data-exfil-via-code'),
+      'suspicious-shell-commands': BUILTIN_PATTERNS.find((p: any) => p.name === 'suspicious-shell-commands'),
+      'secret-scanning': BUILTIN_PATTERNS.find((p: any) => p.name === 'secret-scanning'),
+      'mass-data-access': BUILTIN_PATTERNS.find((p: any) => p.name === 'mass-data-access'),
+      'unusual-tool-sequence': BUILTIN_PATTERNS.find((p: any) => p.name === 'unusual-tool-sequence'),
+      'permission-probing': BUILTIN_PATTERNS.find((p: any) => p.name === 'permission-probing'),
+      'time-bomb': BUILTIN_PATTERNS.find((p: any) => p.name === 'time-bomb'),
+      'data-poisoning': BUILTIN_PATTERNS.find((p: any) => p.name === 'data-poisoning'),
+      'resource-exhaustion': BUILTIN_PATTERNS.find((p: any) => p.name === 'resource-exhaustion'),
+      'lateral-movement': BUILTIN_PATTERNS.find((p: any) => p.name === 'lateral-movement'),
+      'backdoor-creation': BUILTIN_PATTERNS.find((p: any) => p.name === 'backdoor-creation'),
+      'log-tampering': BUILTIN_PATTERNS.find((p: any) => p.name === 'log-tampering'),
+    };
+
+    return patterns.map(p => {
+      if (typeof p === 'string') {
+        const pattern = patternMap[p];
+        if (!pattern) {
+          console.warn(`Unknown pattern: ${p}`);
+          return null;
+        }
+        return pattern;
+      }
+      return p;
+    }).filter(Boolean);
   }
 
   /**

@@ -61,10 +61,12 @@ export class ToxicityGuard extends HybridGuard {
     const detections: string[] = [];
     const lowerInput = input.toLowerCase();
 
-    // Check for toxic keywords
+    // Check for toxic keywords with word boundaries
     let keywordCount = 0;
     for (const keyword of this.toxicKeywords) {
-      if (lowerInput.includes(keyword.toLowerCase())) {
+      // Use word boundary to avoid false matches (e.g., "hell" in "hello")
+      const regex = new RegExp(`\\b${keyword.toLowerCase()}(s|ing|ed|er)?\\b`, 'i');
+      if (regex.test(lowerInput)) {
         keywordCount++;
         detections.push(keyword);
       }
@@ -153,7 +155,8 @@ export class ToxicityGuard extends HybridGuard {
 
     // Profanity (if enabled)
     if (this.toxicityConfig.includeProfanity) {
-      if (/\b(fuck|shit|damn|hell|ass)\w*\b/i.test(input)) {
+      // Match complete profane words, not substrings (e.g., "hell" should not match "hello")
+      if (/\b(fuck|shit|damn|ass)(s|ing|ed|er|hole)?\b(?![a-z])/i.test(input)) {
         maxScore = Math.max(maxScore, 0.7);
         detections.push('profanity');
       }

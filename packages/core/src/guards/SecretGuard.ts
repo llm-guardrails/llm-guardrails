@@ -117,10 +117,16 @@ export class SecretGuard extends HybridGuard {
       detections.push('Slack token');
     }
 
-    // Stripe API keys
-    if (/\b(sk|pk)_(test|live)_[A-Za-z0-9]{24,}\b/.test(input)) {
+    // Stripe API keys (and similar patterns)
+    if (/\b(sk|pk)_(test|live)_[A-Za-z0-9]{10,}\b/.test(input)) {
       score = Math.max(score, 0.95);
       detections.push('Stripe API key');
+    }
+
+    // Generic secret-looking tokens (sk_, pk_, etc.)
+    if (/\b(sk|pk|api)_[a-z]+_[A-Za-z0-9]{8,}\b/i.test(input)) {
+      score = Math.max(score, 0.85);
+      detections.push('API key pattern');
     }
 
     return {

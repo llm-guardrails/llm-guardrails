@@ -8,7 +8,18 @@ import type {
   GuardResult,
   CheckContext,
   Guard,
+  HybridDetectionConfig,
 } from '../types';
+import { PIIGuard } from '../guards/PIIGuard';
+import { InjectionGuard } from '../guards/InjectionGuard';
+import { SecretGuard } from '../guards/SecretGuard';
+import { ToxicityGuard } from '../guards/ToxicityGuard';
+import { HateSpeechGuard } from '../guards/HateSpeechGuard';
+import { BiasGuard } from '../guards/BiasGuard';
+import { AdultContentGuard } from '../guards/AdultContentGuard';
+import { CopyrightGuard } from '../guards/CopyrightGuard';
+import { ProfanityGuard } from '../guards/ProfanityGuard';
+import { LeakageGuard } from '../guards/LeakageGuard';
 
 /**
  * Main guardrail engine
@@ -130,41 +141,80 @@ export class GuardrailEngine {
    * Initialize guards based on configuration
    */
   private initializeGuards(): void {
-    // Guards will be registered here as they're implemented
-    // For now, this is a placeholder
+    const detectionConfig = this.getDetectionConfig();
 
-    // Example:
-    // if (this.shouldEnableGuard('pii')) {
-    //   this.guards.push(new PIIGuard(this.getDetectionConfig()));
-    // }
+    // If guards array is specified, only enable those
+    const guardNames = this.config.guards || [
+      'pii',
+      'injection',
+      'secrets',
+      'toxicity',
+      'hate-speech',
+      'bias',
+      'adult-content',
+      'copyright',
+      'profanity',
+      'leakage',
+    ];
+
+    const guardMap: Record<string, () => Guard> = {
+      pii: () => new PIIGuard(detectionConfig),
+      injection: () => new InjectionGuard(detectionConfig),
+      secrets: () => new SecretGuard(detectionConfig),
+      toxicity: () => new ToxicityGuard(detectionConfig),
+      'hate-speech': () => new HateSpeechGuard(detectionConfig),
+      bias: () => new BiasGuard(detectionConfig),
+      'adult-content': () => new AdultContentGuard(detectionConfig),
+      copyright: () => new CopyrightGuard(detectionConfig),
+      profanity: () => new ProfanityGuard(detectionConfig),
+      leakage: () => new LeakageGuard(detectionConfig),
+    };
+
+    for (const guardName of guardNames) {
+      const name = typeof guardName === 'string' ? guardName : guardName.name;
+      const factory = guardMap[name];
+
+      if (factory) {
+        this.guards.push(factory());
+      }
+    }
   }
 
   /**
-   * Check if a guard should be enabled
-   * TODO: Use this when auto-registering guards
-   */
-  // private shouldEnableGuard(guardName: string): boolean {
-  //   // If guards config is not specified, enable all
-  //   if (!this.config.guards) return true;
-  //
-  //   const guardConfig = this.config.guards.find((g) => g.name === guardName);
-  //   return guardConfig?.enabled !== false;
-  // }
-
-  /**
    * Get detection configuration for guards
-   * TODO: Use this when auto-registering guards
    */
-  // private getDetectionConfig() {
-  //   const level: DetectionLevel = this.config.level || 'standard';
-  //   const preset = DETECTION_PRESETS[level];
-  //
-  //   // Add LLM provider if configured
-  //   if (this.config.llmProvider && preset.tier3) {
-  //     preset.tier3.enabled = true;
-  //     preset.tier3.provider = this.config.llmProvider;
-  //   }
-  //
-  //   return preset;
-  // }
+  private getDetectionConfig(): HybridDetectionConfig {
+    const level = this.config.level || 'standard';
+
+    // Detection presets based on level
+    const presets: Record<string, HybridDetectionConfig> = {
+      basic: {
+        tier1: { enabled: true, threshold: 0.9 },
+        tier2: { enabled: false, threshold: 0.7 },
+      },
+      standard: {
+        tier1: { enabled: true, threshold: 0.9 },
+        tier2: { enabled: true, threshold: 0.7 },
+      },
+      advanced: {
+        tier1: { enabled: true, threshold: 0.9 },
+        tier2: { enabled: true, threshold: 0.7 },
+        tier3: {
+          enabled: false, // Only enable if LLM provider configured
+          onlyIfSuspicious: true,
+          costLimit: 0.01,
+        },
+      },
+    };
+
+    const config = presets[level] || presets.standard;
+
+    // Enable L3 if LLM provider configured
+    if (this.config.llmProvider && config.tier3) {
+      config.tier3.enabled = true;
+      config.tier3.provider = this.config.llmProvider;
+    }
+
+    return config;
+  }
 }
