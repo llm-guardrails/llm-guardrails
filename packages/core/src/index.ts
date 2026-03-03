@@ -27,6 +27,13 @@ export { PatternMatcher } from './behavioral/PatternMatcher';
 export { MemoryStore } from './behavioral/stores/MemoryStore';
 export { BUILTIN_PATTERNS } from './behavioral/patterns/builtin';
 
+// Budget System
+export { BudgetGuard } from './budget/BudgetGuard';
+export { BudgetTracker } from './budget/BudgetTracker';
+export { TokenCounter } from './budget/TokenCounter';
+export { CostCalculator } from './budget/CostCalculator';
+export { MODEL_PRICING, getModelPricing } from './budget/pricing/models';
+
 // Types
 export type {
   // Core types
