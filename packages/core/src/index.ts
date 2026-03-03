@@ -14,6 +14,7 @@ export { PIIGuard } from './guards/PIIGuard';
 export { InjectionGuard } from './guards/InjectionGuard';
 export { SecretGuard } from './guards/SecretGuard';
 export { ToxicityGuard } from './guards/ToxicityGuard';
+export { LeakageGuard } from './guards/LeakageGuard';
 
 // Types
 export type {
