@@ -48,3 +48,6 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+# Claude Code
+.claude/

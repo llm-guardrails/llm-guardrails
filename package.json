@@ -1,0 +1,28 @@
+{
+  "name": "openclaw-guardrails-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TypeScript-native LLM guardrails system - monorepo",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "format": "npm run format --workspaces",
+    "clean": "rm -rf packages/*/dist packages/*/node_modules"
+  },
+  "keywords": [
+    "llm",
+    "guardrails",
+    "security",
+    "typescript",
+    "ai-safety"
+  ],
+  "author": "OpenClaw Team",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
