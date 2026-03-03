@@ -34,6 +34,21 @@ export { TokenCounter } from './budget/TokenCounter';
 export { CostCalculator } from './budget/CostCalculator';
 export { MODEL_PRICING, getModelPricing } from './budget/pricing/models';
 
+// Gateway Adapters
+export { Guardrails } from './adapters/Guardrails';
+export { AnthropicAdapter } from './adapters/AnthropicAdapter';
+export { OpenAIAdapter } from './adapters/OpenAIAdapter';
+export { GeminiAdapter } from './adapters/GeminiAdapter';
+export { BaseAdapter } from './adapters/BaseAdapter';
+export { StreamGuard } from './adapters/StreamGuard';
+export { AutoDetect, globalAutoDetect } from './adapters/AutoDetect';
+export type {
+  GatewayAdapter,
+  GuardedClient,
+  AdapterConfig,
+} from './adapters/types';
+export { GuardrailViolation as AdapterGuardrailViolation } from './adapters/types';
+
 // Types
 export type {
   // Core types
