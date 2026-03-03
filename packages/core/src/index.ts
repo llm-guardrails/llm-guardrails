@@ -15,6 +15,11 @@ export { InjectionGuard } from './guards/InjectionGuard';
 export { SecretGuard } from './guards/SecretGuard';
 export { ToxicityGuard } from './guards/ToxicityGuard';
 export { LeakageGuard } from './guards/LeakageGuard';
+export { HateSpeechGuard } from './guards/HateSpeechGuard';
+export { BiasGuard } from './guards/BiasGuard';
+export { AdultContentGuard } from './guards/AdultContentGuard';
+export { CopyrightGuard } from './guards/CopyrightGuard';
+export { ProfanityGuard } from './guards/ProfanityGuard';
 
 // Types
 export type {
