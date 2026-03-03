@@ -11,6 +11,7 @@ export { DetectionLayer, DETECTION_PRESETS } from './engine/DetectionLayer';
 // Guards
 export { HybridGuard } from './guards/base/HybridGuard';
 export { PIIGuard } from './guards/PIIGuard';
+export { InjectionGuard } from './guards/InjectionGuard';
 
 // Types
 export type {
