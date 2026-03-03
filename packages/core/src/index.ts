@@ -13,6 +13,7 @@ export { HybridGuard } from './guards/base/HybridGuard';
 export { PIIGuard } from './guards/PIIGuard';
 export { InjectionGuard } from './guards/InjectionGuard';
 export { SecretGuard } from './guards/SecretGuard';
+export { ToxicityGuard } from './guards/ToxicityGuard';
 
 // Types
 export type {
