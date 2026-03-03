@@ -240,7 +240,7 @@ function integrationPatterns() {
   // Pattern 1: Zero-config (recommended)
   console.log('Pattern 1: Zero-config');
   console.log('```typescript');
-  console.log('import { Guardrails } from "@openclaw-guardrails/core";');
+  console.log('import { Guardrails } from "@llm-guardrails/core";');
   console.log('const guarded = Guardrails.auto(client);');
   console.log('```\n');
 
@@ -257,7 +257,7 @@ function integrationPatterns() {
   // Pattern 3: Manual adapter
   console.log('Pattern 3: Manual adapter selection');
   console.log('```typescript');
-  console.log('import { Guardrails, AnthropicAdapter } from "@openclaw-guardrails/core";');
+  console.log('import { Guardrails, AnthropicAdapter } from "@llm-guardrails/core";');
   console.log('const guarded = Guardrails.wrap(client, new AnthropicAdapter());');
   console.log('```\n');
 

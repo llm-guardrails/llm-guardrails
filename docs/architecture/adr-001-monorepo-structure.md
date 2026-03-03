@@ -23,10 +23,10 @@ We will use a **monorepo structure** with the following layout:
 ```
 openclaw-guardrails/
 ├── packages/
-│   ├── core/                    # @openclaw-guardrails/core
-│   ├── langchain/               # @openclaw-guardrails/langchain
-│   ├── claude-code/             # @openclaw-guardrails/claude-code
-│   └── mastra/                  # @openclaw-guardrails/mastra
+│   ├── core/                    # @llm-guardrails/core
+│   ├── langchain/               # @llm-guardrails/langchain
+│   ├── claude-code/             # @llm-guardrails/claude-code
+│   └── mastra/                  # @llm-guardrails/mastra
 ├── examples/
 ├── docs/
 └── package.json

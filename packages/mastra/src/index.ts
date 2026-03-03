@@ -1,7 +1,7 @@
 /**
- * @openclaw-guardrails/mastra
+ * @llm-guardrails/mastra
  *
- * Mastra integration for OpenClaw Guardrails.
+ * Mastra integration for LLM Guardrails.
  * Add guardrails to Mastra agents with a simple decorator.
  */
 
@@ -28,4 +28,4 @@ export type {
   GuardrailConfig,
   GuardrailResult,
   GuardResult,
-} from '@openclaw-guardrails/core';
+} from '@llm-guardrails/core';

@@ -1,6 +1,6 @@
 # API Reference
 
-Complete API documentation for @openclaw-guardrails/core.
+Complete API documentation for @llm-guardrails/core.
 
 ## Table of Contents
 
@@ -316,7 +316,7 @@ const result = await guard.check({
 ### Built-in Patterns
 
 ```typescript
-import { BUILTIN_PATTERNS } from '@openclaw-guardrails/core';
+import { BUILTIN_PATTERNS } from '@llm-guardrails/core';
 ```
 
 15 threat patterns included:
@@ -339,7 +339,7 @@ import { BUILTIN_PATTERNS } from '@openclaw-guardrails/core';
 ### Custom Patterns
 
 ```typescript
-import type { ThreatPattern } from '@openclaw-guardrails/core';
+import type { ThreatPattern } from '@llm-guardrails/core';
 
 const customPattern: ThreatPattern = {
   name: 'my-custom-pattern',
@@ -434,7 +434,7 @@ console.log('Request count:', stats.requestCount);
 Count tokens for different models.
 
 ```typescript
-import { TokenCounter } from '@openclaw-guardrails/core';
+import { TokenCounter } from '@llm-guardrails/core';
 
 const counter = new TokenCounter();
 const tokens = counter.count('Your text here', 'gpt-4o');
@@ -449,7 +449,7 @@ const tokens = counter.count('Your text here', 'gpt-4o');
 Calculate costs based on model pricing.
 
 ```typescript
-import { CostCalculator } from '@openclaw-guardrails/core';
+import { CostCalculator } from '@llm-guardrails/core';
 
 const calculator = new CostCalculator();
 
@@ -588,7 +588,7 @@ import {
   calculateNormalizedEntropy,
   hasHighEntropy,
   extractHighEntropySubstrings,
-} from '@openclaw-guardrails/core';
+} from '@llm-guardrails/core';
 
 // Calculate Shannon entropy
 const entropy = calculateEntropy('abc123XYZ');
@@ -618,7 +618,7 @@ import {
   SECRET_PATTERNS,
   compilePatterns,
   matchesAnyPattern,
-} from '@openclaw-guardrails/core';
+} from '@llm-guardrails/core';
 
 // Pre-compiled pattern arrays
 const patterns = INJECTION_PATTERNS;
@@ -639,7 +639,7 @@ const hasMatch = matchesAnyPattern('test text', compiled);
 Custom error thrown when violations are detected.
 
 ```typescript
-import { GuardrailViolation } from '@openclaw-guardrails/core';
+import { GuardrailViolation } from '@llm-guardrails/core';
 
 try {
   const result = await engine.checkInput(userInput);
@@ -668,7 +668,7 @@ try {
 Create your own guard:
 
 ```typescript
-import { Guard, GuardResult } from '@openclaw-guardrails/core';
+import { Guard, GuardResult } from '@llm-guardrails/core';
 
 class CustomGuard implements Guard {
   name = 'custom-guard';
@@ -699,7 +699,7 @@ const engine = new GuardrailEngine({
 Implement custom storage for behavioral analysis:
 
 ```typescript
-import { ISessionStore, ToolCallEvent } from '@openclaw-guardrails/core';
+import { ISessionStore, ToolCallEvent } from '@llm-guardrails/core';
 
 class RedisStore implements ISessionStore {
   async addEvent(event: ToolCallEvent): Promise<void> {

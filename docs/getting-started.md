@@ -1,11 +1,11 @@
-# Getting Started with @openclaw-guardrails/core
+# Getting Started with @llm-guardrails/core
 
 This guide will help you get started with the guardrails library in just a few minutes.
 
 ## Installation
 
 ```bash
-npm install @openclaw-guardrails/core
+npm install @llm-guardrails/core
 ```
 
 **Zero dependencies** - The core library has no runtime dependencies!
@@ -15,7 +15,7 @@ npm install @openclaw-guardrails/core
 The simplest possible setup to protect against PII leaks:
 
 ```typescript
-import { GuardrailEngine, PIIGuard, DETECTION_PRESETS } from '@openclaw-guardrails/core';
+import { GuardrailEngine, PIIGuard, DETECTION_PRESETS } from '@llm-guardrails/core';
 
 // Create engine
 const guardrails = new GuardrailEngine({
@@ -53,7 +53,7 @@ import {
   AdultContentGuard,  // NSFW content
   CopyrightGuard,     // Copyright violations
   ProfanityGuard,     // Profanity
-} from '@openclaw-guardrails/core';
+} from '@llm-guardrails/core';
 ```
 
 ### Step 2: Select Detection Level
@@ -61,7 +61,7 @@ import {
 Choose based on your performance vs. accuracy needs:
 
 ```typescript
-import { DETECTION_PRESETS } from '@openclaw-guardrails/core';
+import { DETECTION_PRESETS } from '@llm-guardrails/core';
 
 // Option 1: basic - Fastest (~1ms), 90% accuracy
 const fastGuard = new PIIGuard(DETECTION_PRESETS.basic);
@@ -142,7 +142,7 @@ return { response: llmResponse };
 
 ```typescript
 import express from 'express';
-import { GuardrailEngine, PIIGuard, InjectionGuard, DETECTION_PRESETS } from '@openclaw-guardrails/core';
+import { GuardrailEngine, PIIGuard, InjectionGuard, DETECTION_PRESETS } from '@llm-guardrails/core';
 
 const app = express();
 app.use(express.json());
@@ -182,7 +182,7 @@ app.listen(3000);
 ```typescript
 // pages/api/chat.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { GuardrailEngine, PIIGuard, InjectionGuard, DETECTION_PRESETS } from '@openclaw-guardrails/core';
+import { GuardrailEngine, PIIGuard, InjectionGuard, DETECTION_PRESETS } from '@llm-guardrails/core';
 
 // Initialize once, outside the handler
 const guardrails = new GuardrailEngine({
@@ -219,7 +219,7 @@ export default async function handler(
 
 ```typescript
 // api/chat.ts
-import { GuardrailEngine, PIIGuard, InjectionGuard, DETECTION_PRESETS } from '@openclaw-guardrails/core';
+import { GuardrailEngine, PIIGuard, InjectionGuard, DETECTION_PRESETS } from '@llm-guardrails/core';
 
 // Cold start: initialize once
 let guardrails: GuardrailEngine | null = null;
@@ -264,7 +264,7 @@ export default async function handler(req: Request) {
 Detect cross-message attack patterns:
 
 ```typescript
-import { BehavioralGuard, BUILTIN_PATTERNS } from '@openclaw-guardrails/core';
+import { BehavioralGuard, BUILTIN_PATTERNS } from '@llm-guardrails/core';
 
 const guardrails = new GuardrailEngine({
   guards: [
@@ -300,7 +300,7 @@ if (check.blocked) {
 Track costs and enforce limits:
 
 ```typescript
-import { BudgetGuard } from '@openclaw-guardrails/core';
+import { BudgetGuard } from '@llm-guardrails/core';
 
 const budgetGuard = new BudgetGuard({
   maxTokensPerSession: 100000,
@@ -398,7 +398,7 @@ const guardrails = new GuardrailEngine({
 
 Make sure you've installed the package:
 ```bash
-npm install @openclaw-guardrails/core
+npm install @llm-guardrails/core
 ```
 
 ### TypeScript errors

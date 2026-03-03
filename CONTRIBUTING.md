@@ -1,4 +1,4 @@
-# Contributing to OpenClaw Guardrails
+# Contributing to LLM Guardrails
 
 Thank you for your interest in contributing! This document provides guidelines for contributing to the project.
 
@@ -218,4 +218,4 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 ---
 
-Thank you for contributing to OpenClaw Guardrails! 🚀
+Thank you for contributing to LLM Guardrails! 🚀

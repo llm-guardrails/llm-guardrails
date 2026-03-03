@@ -4,8 +4,8 @@
  * Decorator function to add guardrails to Mastra agents.
  */
 
-import type { GuardrailEngine } from '@openclaw-guardrails/core';
-import type { GuardrailConfig } from '@openclaw-guardrails/core';
+import type { GuardrailEngine } from '@llm-guardrails/core';
+import type { GuardrailConfig } from '@llm-guardrails/core';
 
 /**
  * Decorator configuration

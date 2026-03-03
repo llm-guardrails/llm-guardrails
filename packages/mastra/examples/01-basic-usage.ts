@@ -5,7 +5,7 @@
  */
 
 import { withGuardrails, quickGuard } from '../src';
-import { GuardrailEngine } from '@openclaw-guardrails/core';
+import { GuardrailEngine } from '@llm-guardrails/core';
 
 // Mock Mastra agent for demonstration
 const createMockAgent = (name: string) => ({

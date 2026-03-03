@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to @openclaw-guardrails/core will be documented in this file.
+All notable changes to @llm-guardrails/core will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -100,7 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This is a major update from the initial prototype. Key changes:
 
-1. **Package renamed**: Now `@openclaw-guardrails/core`
+1. **Package renamed**: Now `@llm-guardrails/core`
 2. **New guards**: 10 content guards instead of basic prototype
 3. **Added features**: Behavioral analysis and budget system
 4. **TypeScript types**: Comprehensive type definitions

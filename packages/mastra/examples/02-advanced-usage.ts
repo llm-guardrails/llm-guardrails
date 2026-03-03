@@ -13,7 +13,7 @@ import {
   guardWithMonitoring,
   withGuardrails,
 } from '../src';
-import { GuardrailEngine } from '@openclaw-guardrails/core';
+import { GuardrailEngine } from '@llm-guardrails/core';
 
 // Mock Mastra agent with tools
 const createAgentWithTools = (name: string) => ({

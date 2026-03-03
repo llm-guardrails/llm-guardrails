@@ -20,7 +20,7 @@
     "typescript",
     "ai-safety"
   ],
-  "author": "OpenClaw Team",
+  "author": "LLM Guardrails Team",
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.3.3"

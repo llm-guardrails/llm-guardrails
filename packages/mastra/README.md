@@ -1,8 +1,8 @@
-# @openclaw-guardrails/mastra
+# @llm-guardrails/mastra
 
-> Mastra integration for OpenClaw Guardrails - Add guardrails to Mastra agents with a simple decorator
+> Mastra integration for LLM Guardrails - Add guardrails to Mastra agents with a simple decorator
 
-[![npm version](https://img.shields.io/npm/v/@openclaw-guardrails/mastra.svg)](https://www.npmjs.com/package/@openclaw-guardrails/mastra)
+[![npm version](https://img.shields.io/npm/v/@llm-guardrails/mastra.svg)](https://www.npmjs.com/package/@llm-guardrails/mastra)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
@@ -18,7 +18,7 @@
 ## Installation
 
 ```bash
-npm install @openclaw-guardrails/mastra @openclaw-guardrails/core
+npm install @llm-guardrails/mastra @llm-guardrails/core
 ```
 
 ## Quick Start
@@ -27,8 +27,8 @@ npm install @openclaw-guardrails/mastra @openclaw-guardrails/core
 
 ```typescript
 import { Agent } from '@mastra/core';
-import { withGuardrails } from '@openclaw-guardrails/mastra';
-import { GuardrailEngine } from '@openclaw-guardrails/core';
+import { withGuardrails } from '@llm-guardrails/mastra';
+import { GuardrailEngine } from '@llm-guardrails/core';
 
 // Create your Mastra agent
 const agent = new Agent({
@@ -51,7 +51,7 @@ const response = await guardedAgent.generate('How can I help you?');
 ### Quick Guard (Presets)
 
 ```typescript
-import { quickGuard } from '@openclaw-guardrails/mastra';
+import { quickGuard } from '@llm-guardrails/mastra';
 
 // Use preset configurations
 const guardedAgent = quickGuard(agent, 'production');
@@ -61,7 +61,7 @@ const guardedAgent = quickGuard(agent, 'production');
 ### Factory Pattern
 
 ```typescript
-import { createGuardedAgentFactory } from '@openclaw-guardrails/mastra';
+import { createGuardedAgentFactory } from '@llm-guardrails/mastra';
 
 // Create a factory with shared configuration
 const guardAgent = createGuardedAgentFactory({
@@ -81,8 +81,8 @@ const agent3 = guardAgent(analyticsAgent);
 ### Full Configuration
 
 ```typescript
-import { withGuardrails } from '@openclaw-guardrails/mastra';
-import { GuardrailEngine } from '@openclaw-guardrails/core';
+import { withGuardrails } from '@llm-guardrails/mastra';
+import { GuardrailEngine } from '@llm-guardrails/core';
 
 const engine = new GuardrailEngine({
   // Content guards
@@ -148,7 +148,7 @@ const guardedAgent = withGuardrails(agent, engine, {
 ### Tool-Specific Guards
 
 ```typescript
-import { toolSpecificGuards } from '@openclaw-guardrails/mastra';
+import { toolSpecificGuards } from '@llm-guardrails/mastra';
 
 const config = toolSpecificGuards({
   emailTool: {
@@ -172,7 +172,7 @@ const guardedAgent = withGuardrails(agent, engine, config);
 ### Conditional Guards
 
 ```typescript
-import { conditionalGuard } from '@openclaw-guardrails/mastra';
+import { conditionalGuard } from '@llm-guardrails/mastra';
 
 // Only apply guardrails in production
 const guardedAgent = conditionalGuard(
@@ -185,7 +185,7 @@ const guardedAgent = conditionalGuard(
 ### Multiple Agents
 
 ```typescript
-import { guardAgents } from '@openclaw-guardrails/mastra';
+import { guardAgents } from '@llm-guardrails/mastra';
 
 const [agent1, agent2, agent3] = guardAgents(
   [supportAgent, salesAgent, analyticsAgent],
@@ -199,7 +199,7 @@ const [agent1, agent2, agent3] = guardAgents(
 ### Per-Agent Configuration
 
 ```typescript
-import { createPerAgentGuard } from '@openclaw-guardrails/mastra';
+import { createPerAgentGuard } from '@llm-guardrails/mastra';
 
 const guardAgent = createPerAgentGuard({
   support: {
@@ -222,7 +222,7 @@ const salesAgent = guardAgent('sales', salesAgentInstance);
 ### Monitoring
 
 ```typescript
-import { guardWithMonitoring } from '@openclaw-guardrails/mastra';
+import { guardWithMonitoring } from '@llm-guardrails/mastra';
 
 const guardedAgent = guardWithMonitoring(
   agent,
@@ -336,7 +336,7 @@ Wrap agent with guardrails and add monitoring callbacks.
 
 ```typescript
 import { Agent } from '@mastra/core';
-import { quickGuard } from '@openclaw-guardrails/mastra';
+import { quickGuard } from '@llm-guardrails/mastra';
 
 const supportAgent = new Agent({
   name: 'Support',
@@ -357,7 +357,7 @@ const response = await guardedSupport.generate(
 ### Example 2: Multi-Agent System
 
 ```typescript
-import { guardAgents } from '@openclaw-guardrails/mastra';
+import { guardAgents } from '@llm-guardrails/mastra';
 
 const [support, sales, analytics] = guardAgents(
   [supportAgent, salesAgent, analyticsAgent],
@@ -377,7 +377,7 @@ const [support, sales, analytics] = guardAgents(
 ### Example 3: Tool-Specific Protection
 
 ```typescript
-import { toolSpecificGuards } from '@openclaw-guardrails/mastra';
+import { toolSpecificGuards } from '@llm-guardrails/mastra';
 
 const guardedAgent = withGuardrails(
   agent,
@@ -401,7 +401,7 @@ const guardedAgent = withGuardrails(
 
 ```typescript
 import { Workflow } from '@mastra/core';
-import { createGuardedAgentFactory } from '@openclaw-guardrails/mastra';
+import { createGuardedAgentFactory } from '@llm-guardrails/mastra';
 
 const guardAgent = createGuardedAgentFactory({
   guards: ['pii', 'injection'],

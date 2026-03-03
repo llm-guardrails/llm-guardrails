@@ -360,7 +360,7 @@ for (let i = 0; i < 15; i++) {
 ### Using Built-in Patterns
 
 ```typescript
-import { BehavioralGuard, BUILTIN_PATTERNS } from '@openclaw-guardrails/core';
+import { BehavioralGuard, BUILTIN_PATTERNS } from '@llm-guardrails/core';
 
 const guard = new BehavioralGuard({
   storage: 'memory',
@@ -377,7 +377,7 @@ import {
   FILE_EXFILTRATION,
   CREDENTIAL_THEFT,
   ESCALATION_ATTEMPTS,
-} from '@openclaw-guardrails/core';
+} from '@llm-guardrails/core';
 
 const guard = new BehavioralGuard({
   patterns: [
@@ -393,7 +393,7 @@ const guard = new BehavioralGuard({
 Create your own threat patterns:
 
 ```typescript
-import type { ThreatPattern } from '@openclaw-guardrails/core';
+import type { ThreatPattern } from '@llm-guardrails/core';
 
 const customPattern: ThreatPattern = {
   name: 'database-export-attack',
@@ -621,7 +621,7 @@ setInterval(async () => {
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { BehavioralGuard, FILE_EXFILTRATION } from '@openclaw-guardrails/core';
+import { BehavioralGuard, FILE_EXFILTRATION } from '@llm-guardrails/core';
 
 describe('Behavioral Detection', () => {
   const guard = new BehavioralGuard({

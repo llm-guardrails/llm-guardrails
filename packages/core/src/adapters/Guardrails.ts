@@ -16,7 +16,7 @@ export class Guardrails {
    * @example
    * ```typescript
    * import Anthropic from '@anthropic-ai/sdk';
-   * import { Guardrails } from '@openclaw-guardrails/core';
+   * import { Guardrails } from '@llm-guardrails/core';
    *
    * const client = new Anthropic({ apiKey: '...' });
    * const guarded = Guardrails.auto(client);
@@ -35,7 +35,7 @@ export class Guardrails {
    *
    * @example
    * ```typescript
-   * import { Guardrails, AnthropicAdapter } from '@openclaw-guardrails/core';
+   * import { Guardrails, AnthropicAdapter } from '@llm-guardrails/core';
    *
    * const guarded = Guardrails.wrap(client, new AnthropicAdapter());
    * ```

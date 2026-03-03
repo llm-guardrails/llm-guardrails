@@ -177,7 +177,7 @@ Token tracking and cost control for 20+ LLM models:
 ## 📦 Final Package Structure
 
 ```
-@openclaw-guardrails/core@0.9.0
+@llm-guardrails/core@0.9.0
 ├── src/
 │   ├── engine/          # GuardrailEngine, DetectionLayer, ResultCache
 │   ├── guards/          # 10 content guards
@@ -392,7 +392,7 @@ Total Docs:           ~5,000 words
 ### v1.0.0 (1-2 months)
 - [ ] SQLite and Redis storage backends
 - [ ] Gateway adapters (Anthropic, OpenAI, Gemini)
-- [ ] Framework plugins (@openclaw-guardrails/langchain, etc.)
+- [ ] Framework plugins (@llm-guardrails/langchain, etc.)
 - [ ] L3 LLM-based detection
 - [ ] Advanced caching optimizations
 - [ ] Streaming support
@@ -443,7 +443,7 @@ This implementation provides the TypeScript community with:
 ---
 
 **Status:** ✅ **IMPLEMENTATION COMPLETE**
-**Package:** `@openclaw-guardrails/core@0.9.0`
+**Package:** `@llm-guardrails/core@0.9.0`
 **Ready for:** NPM Publication and Community Use
 
 ---

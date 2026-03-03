@@ -1,4 +1,4 @@
-# @openclaw-guardrails/core
+# @llm-guardrails/core
 
 > **TypeScript-native LLM guardrails with behavioral analysis and budget controls**
 
@@ -71,7 +71,7 @@ All performance targets **achieved**:
 ## 📦 Installation
 
 ```bash
-npm install @openclaw-guardrails/core
+npm install @llm-guardrails/core
 ```
 
 **Zero runtime dependencies** - Only optional peer dependencies for storage backends.
@@ -83,8 +83,8 @@ npm install @openclaw-guardrails/core
 ### 1. Basic Content Protection
 
 ```typescript
-import { GuardrailEngine, PIIGuard, InjectionGuard } from '@openclaw-guardrails/core';
-import { DETECTION_PRESETS } from '@openclaw-guardrails/core';
+import { GuardrailEngine, PIIGuard, InjectionGuard } from '@llm-guardrails/core';
+import { DETECTION_PRESETS } from '@llm-guardrails/core';
 
 // Create engine with guards
 const engine = new GuardrailEngine({
@@ -109,7 +109,7 @@ if (result.blocked) {
 ### 2. Behavioral Threat Detection
 
 ```typescript
-import { BehavioralGuard, BUILTIN_PATTERNS } from '@openclaw-guardrails/core';
+import { BehavioralGuard, BUILTIN_PATTERNS } from '@llm-guardrails/core';
 
 const behavioralGuard = new BehavioralGuard({
   storage: 'memory',
@@ -133,7 +133,7 @@ if (result.blocked) {
 ### 3. Budget Controls
 
 ```typescript
-import { BudgetGuard } from '@openclaw-guardrails/core';
+import { BudgetGuard } from '@llm-guardrails/core';
 
 const budgetGuard = new BudgetGuard({
   maxTokensPerSession: 100000,
@@ -177,7 +177,7 @@ import {
   BehavioralGuard,
   BudgetGuard,
   DETECTION_PRESETS,
-} from '@openclaw-guardrails/core';
+} from '@llm-guardrails/core';
 
 // Full-featured production setup
 const engine = new GuardrailEngine({
@@ -282,7 +282,7 @@ Benefits:
 ## 🎨 Detection Presets
 
 ```typescript
-import { DETECTION_PRESETS } from '@openclaw-guardrails/core';
+import { DETECTION_PRESETS } from '@llm-guardrails/core';
 
 // basic = L1 only (~1ms) - Fastest
 const fastGuard = new PIIGuard(DETECTION_PRESETS.basic);

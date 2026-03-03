@@ -1,5 +1,5 @@
 /**
- * Basic usage example for @openclaw-guardrails/core
+ * Basic usage example for @llm-guardrails/core
  */
 
 import {
@@ -9,7 +9,7 @@ import {
 } from '../packages/core/src';
 
 async function main() {
-  console.log('🛡️  OpenClaw Guardrails - Basic Usage Example\n');
+  console.log('🛡️  LLM Guardrails - Basic Usage Example\n');
 
   // Create guardrail engine with standard detection level
   const engine = new GuardrailEngine({

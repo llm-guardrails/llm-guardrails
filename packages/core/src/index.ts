@@ -1,5 +1,5 @@
 /**
- * @openclaw-guardrails/core
+ * @llm-guardrails/core
  *
  * TypeScript-native LLM guardrails with behavioral analysis and budget controls
  */

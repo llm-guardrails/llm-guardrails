@@ -1,4 +1,4 @@
-# OpenClaw Guardrails - Project Status
+# LLM Guardrails - Project Status
 
 **Last Updated**: March 3, 2026
 **Phase**: Week 0 - Project Setup ✅

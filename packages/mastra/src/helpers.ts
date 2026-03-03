@@ -4,8 +4,8 @@
  * High-level utilities for integrating guardrails with Mastra.
  */
 
-import { GuardrailEngine } from '@openclaw-guardrails/core';
-import type { GuardrailConfig } from '@openclaw-guardrails/core';
+import { GuardrailEngine } from '@llm-guardrails/core';
+import type { GuardrailConfig } from '@llm-guardrails/core';
 import { withGuardrails } from './decorator';
 import type { MastraGuardrailConfig, GuardedAgent } from './decorator';
 
