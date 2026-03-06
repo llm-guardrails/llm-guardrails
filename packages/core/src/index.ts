@@ -34,6 +34,33 @@ export { TokenCounter } from './budget/TokenCounter';
 export { CostCalculator } from './budget/CostCalculator';
 export { MODEL_PRICING, getModelPricing } from './budget/pricing/models';
 
+// Observability & Monitoring
+export { Observability, createObservability } from './observability';
+export { MetricsCollector } from './observability/metrics/MetricsCollector';
+export { Logger } from './observability/logging/Logger';
+export { Tracer } from './observability/tracing/Tracer';
+export type {
+  ObservabilityConfig,
+  MetricsConfig,
+  LoggingConfig,
+  TracingConfig,
+  Metric,
+  LogEntry,
+  Span,
+  MetricsSnapshot,
+  ObservabilityStats,
+} from './observability/types';
+
+// Caching
+export { LRUCache } from './cache/LRUCache';
+export { CacheManager } from './cache/CacheManager';
+export type {
+  GuardrailCacheConfig,
+  GuardrailCacheEntry,
+  GuardrailCacheStats,
+  ICache,
+} from './cache/types';
+
 // LLM Providers (L3 Validation) - Coming in v0.2.0
 // export {
 //   AnthropicLLMProvider,

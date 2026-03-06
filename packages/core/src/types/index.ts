@@ -346,6 +346,10 @@ export interface GuardrailConfig {
   behavioral?: BehavioralConfig | boolean;
   /** Budget controls configuration */
   budget?: BudgetConfig;
+  /** Observability configuration (metrics, logging, tracing) */
+  observability?: import('../observability/types.js').ObservabilityConfig;
+  /** Cache configuration for performance optimization */
+  cache?: import('../cache/types.js').GuardrailCacheConfig;
   /** Callback when input is blocked */
   onBlock?: (result: GuardrailResult) => void;
   /** Callback for warnings */

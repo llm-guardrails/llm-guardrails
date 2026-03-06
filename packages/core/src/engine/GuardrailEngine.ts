@@ -20,6 +20,8 @@ import { AdultContentGuard } from '../guards/AdultContentGuard';
 import { CopyrightGuard } from '../guards/CopyrightGuard';
 import { ProfanityGuard } from '../guards/ProfanityGuard';
 import { LeakageGuard } from '../guards/LeakageGuard';
+import { Observability } from '../observability';
+import { CacheManager } from '../cache/CacheManager';
 
 /**
  * Main guardrail engine
@@ -27,9 +29,22 @@ import { LeakageGuard } from '../guards/LeakageGuard';
 export class GuardrailEngine {
   private guards: Guard[] = [];
   private config: GuardrailConfig;
+  private observability?: Observability;
+  private cacheManager?: CacheManager;
 
   constructor(config: GuardrailConfig = {}) {
     this.config = config;
+
+    // Initialize observability if configured
+    if (config.observability) {
+      this.observability = new Observability(config.observability);
+    }
+
+    // Initialize cache if configured
+    if (config.cache?.enabled) {
+      this.cacheManager = new CacheManager(config.cache);
+    }
+
     this.initializeGuards();
   }
 
@@ -45,19 +60,56 @@ export class GuardrailEngine {
 
     // Run all guards
     for (const guard of this.guards) {
+      const guardStartTime = Date.now();
+      const span = this.observability?.startCheckSpan(guard.name, context?.sessionId);
+
       try {
-        const result = await guard.check(input, context);
+        // Check cache first
+        let result = this.cacheManager?.get(input, guard.name);
+
+        if (!result) {
+          // Cache miss - run the guard
+          result = await guard.check(input, context);
+
+          // Cache the result
+          if (this.cacheManager) {
+            this.cacheManager.set(input, guard.name, result);
+          }
+        }
+
+        const guardLatency = Date.now() - guardStartTime;
         results.push(result);
+
+        // Record observability for this guard check
+        if (this.observability) {
+          this.observability.recordCheck(
+            guard.name,
+            input,
+            {
+              blocked: result.blocked || false,
+              reason: result.reason,
+              confidence: result.confidence,
+            },
+            guardLatency,
+            context?.sessionId
+          );
+        }
+
+        // End span
+        if (span) {
+          this.observability?.endSpan(span);
+        }
 
         // Early exit if blocked
         if (result.blocked) {
+          const totalLatency = Date.now() - startTime;
           const guardrailResult: GuardrailResult = {
             passed: false,
             blocked: true,
             reason: result.reason,
             guard: guard.name,
             results,
-            totalLatency: Date.now() - startTime,
+            totalLatency,
             sessionId: context?.sessionId,
           };
 
@@ -74,15 +126,21 @@ export class GuardrailEngine {
           blocked: false,
           reason: `Guard error: ${error}`,
         });
+
+        // End span with error
+        if (span) {
+          this.observability?.endSpan(span);
+        }
       }
     }
 
     // All checks passed
+    const totalLatency = Date.now() - startTime;
     return {
       passed: true,
       blocked: false,
       results,
-      totalLatency: Date.now() - startTime,
+      totalLatency,
       sessionId: context?.sessionId,
     };
   }
@@ -135,6 +193,62 @@ export class GuardrailEngine {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Get metrics snapshot (if observability is enabled)
+   */
+  getMetricsSnapshot() {
+    return this.observability?.getMetricsSnapshot();
+  }
+
+  /**
+   * Export Prometheus metrics (if observability is enabled)
+   */
+  exportPrometheus(): string | undefined {
+    return this.observability?.exportPrometheus();
+  }
+
+  /**
+   * Get observability statistics (if observability is enabled)
+   */
+  getObservabilityStats() {
+    return this.observability?.getStats();
+  }
+
+  /**
+   * Reset observability data (metrics, logs, traces)
+   */
+  resetObservability(): void {
+    this.observability?.reset();
+  }
+
+  /**
+   * Check if observability is enabled
+   */
+  isObservabilityEnabled(): boolean {
+    return this.observability?.isEnabled() || false;
+  }
+
+  /**
+   * Get cache statistics (if caching is enabled)
+   */
+  getCacheStats() {
+    return this.cacheManager?.getStats();
+  }
+
+  /**
+   * Clear cache
+   */
+  clearCache(): void {
+    this.cacheManager?.clear();
+  }
+
+  /**
+   * Check if caching is enabled
+   */
+  isCacheEnabled(): boolean {
+    return !!this.cacheManager;
   }
 
   /**
