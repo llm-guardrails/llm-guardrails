@@ -1,9 +1,5 @@
-# Research files (keep private)
-README.md
-typescript-landscape.md
-technical-solutions.md
-recommendations.md
-ACTION_PLAN.md
+# Internal documentation (working notes, analysis docs - keep private)
+internal-docs/
 
 # Node
 node_modules/
