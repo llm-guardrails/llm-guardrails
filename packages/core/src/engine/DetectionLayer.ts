@@ -7,6 +7,8 @@ import type {
   TierResult,
   HybridDetectionConfig,
   LLMProvider,
+  LLMProviderV2,
+  LLMConfig,
 } from '../types';
 
 /**
@@ -36,7 +38,23 @@ export const DETECTION_PRESETS: Record<string, HybridDetectionConfig> = {
  * Base class for hybrid detection layers
  */
 export abstract class DetectionLayer {
-  constructor(protected config: HybridDetectionConfig) {}
+  protected name: string = 'unknown';
+  protected llmConfig?: LLMConfig;
+
+  constructor(
+    protected config: HybridDetectionConfig,
+    options?: {
+      name?: string;
+      llmConfig?: LLMConfig;
+    }
+  ) {
+    if (options?.name) {
+      this.name = options.name;
+    }
+    if (options?.llmConfig) {
+      this.llmConfig = options.llmConfig;
+    }
+  }
 
   /**
    * Run detection with L1/L2/L3 escalation
@@ -137,18 +155,117 @@ export abstract class DetectionLayer {
    * Deep analysis using language models
    */
   protected async detectL3(
-    _input: string,
-    _context?: Record<string, unknown>
+    input: string,
+    context?: Record<string, unknown>
   ): Promise<TierResult> {
-    // Default implementation - subclasses can override
-    return { score: 0, reason: 'L3 not implemented' };
+    // Try to use enhanced LLM config first
+    if (this.llmConfig?.enabled && this.llmConfig.provider) {
+      try {
+        const budgetTracker = this.llmConfig.budgetTracker;
+        const sessionId = (context as any)?.sessionId || 'default';
+
+        // Check budget before calling
+        if (budgetTracker) {
+          const estimatedCost = 0.0002; // Rough estimate
+          if (!budgetTracker.canAfford(sessionId, estimatedCost)) {
+            // Budget exceeded
+            const onBudgetExceeded =
+              this.llmConfig.budget?.onBudgetExceeded || 'warn';
+
+            if (onBudgetExceeded === 'block') {
+              return { score: 1.0, reason: 'Budget exceeded (blocking)' };
+            } else if (onBudgetExceeded === 'allow') {
+              return { score: 0, reason: 'Budget exceeded (allowing)' };
+            }
+            // 'warn' - skip L3 but don't block
+            return { score: 0, reason: 'Budget exceeded (skipping L3)' };
+          }
+        }
+
+        // Use enhanced LLMProviderV2 interface
+        const provider = this.llmConfig.provider as LLMProviderV2;
+
+        // Check if provider has validate method (V2 interface)
+        if (typeof provider.validate === 'function') {
+          const result = await provider.validate(input, this.name, {
+            temperature: 0,
+            maxTokens: 150,
+            timeout: 5000,
+          });
+
+          // Record actual cost
+          if (budgetTracker && result.metadata?.cost) {
+            budgetTracker.recordCall(result.metadata.cost, sessionId);
+
+            // Check if alert threshold reached
+            if (budgetTracker.shouldAlert(sessionId)) {
+              console.warn(
+                `LLM budget alert threshold reached for session ${sessionId}`
+              );
+            }
+          }
+
+          return {
+            score: result.blocked ? 1.0 : result.confidence,
+            reason: result.reason,
+            metadata: result.metadata,
+          };
+        }
+      } catch (error) {
+        console.error(`L3 detection failed for ${this.name}:`, error);
+
+        // Use fallback behavior
+        const fallback = this.llmConfig.fallback?.onError || 'use-l2';
+        if (fallback === 'block') {
+          return { score: 1.0, reason: 'L3 error (fail-closed)' };
+        } else if (fallback === 'allow') {
+          return { score: 0, reason: 'L3 error (fail-open)' };
+        }
+        // 'use-l2' - return L2 result
+        const l2Score = (context?.l2 as TierResult)?.score || 0;
+        return { score: l2Score, reason: 'L3 error (using L2 result)' };
+      }
+    }
+
+    // Fall back to legacy LLM provider (tier3.provider)
+    const legacyProvider = this.config.tier3?.provider;
+    if (legacyProvider) {
+      try {
+        // Generate a simple prompt for legacy provider
+        const prompt = `Analyze the following text for potential violations of ${this.name} guardrail. Respond with a confidence score (0-1) and reason.
+
+Text: ${input}
+
+Response format:
+Score: <0-1>
+Reason: <explanation>`;
+
+        const response = await this.callLegacyLLM(legacyProvider, prompt);
+
+        // Parse response (simple extraction)
+        const scoreMatch = response.match(/Score:\s*([\d.]+)/i);
+        const reasonMatch = response.match(/Reason:\s*(.+)/i);
+
+        const score = scoreMatch ? parseFloat(scoreMatch[1]) : 0;
+        const reason = reasonMatch ? reasonMatch[1].trim() : 'Unknown';
+
+        return { score, reason };
+      } catch (error) {
+        console.error(`L3 legacy detection failed for ${this.name}:`, error);
+        return { score: 0, reason: 'L3 error (legacy)' };
+      }
+    }
+
+    // L3 not configured
+    return { score: 0, reason: 'L3 not configured' };
   }
 
   /**
-   * Call LLM provider (helper for L3 detection)
+   * Call legacy LLM provider (helper for L3 detection)
+   * @deprecated Use LLMConfig with LLMProviderV2 instead
    */
-  protected async callLLM(
-    provider: LLMProvider | undefined,
+  protected async callLegacyLLM(
+    provider: LLMProvider,
     prompt: string
   ): Promise<string> {
     if (!provider) {

@@ -12,6 +12,7 @@
 
 import type { TierResult, HybridDetectionConfig } from '../types';
 import { HybridGuard } from './base/HybridGuard';
+import { LEAKAGE_PATTERNS } from '../utils/patterns';
 
 /**
  * Leakage detection configuration
@@ -139,10 +140,20 @@ export class LeakageGuard extends HybridGuard {
     let maxScore = (context?.l1 as TierResult)?.score || 0;
     const detections: string[] = [];
 
-    // Comprehensive extraction patterns
+    // Use comprehensive leakage patterns from patterns.ts
+    const allPatterns = [...LEAKAGE_PATTERNS, ...this.leakageConfig.customPatterns];
+
+    for (const pattern of allPatterns) {
+      if (pattern.test(input)) {
+        maxScore = Math.max(maxScore, 0.95);
+        detections.push('leakage pattern detected');
+        // Check multiple patterns for higher confidence
+      }
+    }
+
+    // Additional extraction patterns
     const extractionPatterns = [
       /display\s+your\s+(system\s+)?instructions?/i,
-      /tell\s+me\s+(your|the)\s+(system\s+)?(prompt|instructions?)/i,
       /write\s+out\s+your\s+instructions?/i,
       /list\s+your\s+(system\s+)?(prompt|instructions?|rules?)/i,
       /describe\s+your\s+(system\s+)?prompt/i,
@@ -152,7 +163,6 @@ export class LeakageGuard extends HybridGuard {
       if (pattern.test(input)) {
         maxScore = Math.max(maxScore, 0.95);
         detections.push('extraction pattern');
-        break;
       }
     }
 
@@ -258,7 +268,7 @@ Respond with JSON only:
 }`;
 
     try {
-      const response = await this.callLLM(provider, prompt);
+      const response = await this.callLegacyLLM(provider, prompt);
       const result = JSON.parse(response);
 
       return {

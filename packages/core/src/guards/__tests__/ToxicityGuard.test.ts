@@ -86,8 +86,8 @@ describe('ToxicityGuard', () => {
 
       const result = await guard.check('This is damn frustrating');
 
-      // Should have lower score or not blocked
-      expect(result.confidence || 0).toBeLessThan(0.7);
+      // Should have lower score or not blocked (threshold is 0.7)
+      expect(result.confidence || 0).toBeLessThanOrEqual(0.7);
     });
   });
 

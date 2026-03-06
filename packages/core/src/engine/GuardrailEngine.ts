@@ -143,18 +143,41 @@ export class GuardrailEngine {
   private initializeGuards(): void {
     const detectionConfig = this.getDetectionConfig();
 
+    // Initialize LLM system if enabled
+    let llmOptions = this.config.llm?.enabled ? this.config.llm : undefined;
+
+    // Initialize budget tracker if LLM is enabled and budget config exists
+    if (llmOptions && llmOptions.budget) {
+      // Dynamically import budget tracker
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { LLMBudgetTracker } = require('../llm/budget/LLMBudgetTracker');
+        const budgetTracker = new LLMBudgetTracker(llmOptions.budget);
+
+        // Inject budget tracker into config
+        llmOptions = {
+          ...llmOptions,
+          budgetTracker,
+        };
+      } catch (error) {
+        console.error('Failed to initialize LLM budget tracker:', error);
+      }
+    }
+
     // If guards array is specified, only enable those
+    // Note: Guards are ordered from most specific to least specific
+    // Injection/leakage run first as they're highly targeted attacks
     const guardNames = this.config.guards || [
-      'pii',
-      'injection',
-      'secrets',
+      'injection',      // Most specific - jailbreaks, prompt injection
+      'leakage',        // Specific - prompt extraction attempts
+      'secrets',        // Specific - API keys, tokens
+      'pii',            // Can have false positives, so run after more specific guards
       'toxicity',
       'hate-speech',
       'bias',
       'adult-content',
       'copyright',
       'profanity',
-      'leakage',
     ];
 
     const guardMap: Record<string, () => Guard> = {

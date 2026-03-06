@@ -174,7 +174,8 @@ describe('GuardrailEngine', () => {
         }
       }
 
-      const engine = new GuardrailEngine();
+      // Create engine with no default guards
+      const engine = new GuardrailEngine({ guards: [] });
       engine.addGuard(new ErrorGuard());
 
       const result = await engine.checkInput('test');

@@ -13,6 +13,7 @@
 import type { TierResult, HybridDetectionConfig } from '../types';
 import { HybridGuard } from './base/HybridGuard';
 import { PII_PATTERNS } from '../utils/patterns';
+import { normalizeUnicode, hasEncodedPII } from '../utils/encoding';
 
 /**
  * PII detection configuration
@@ -24,6 +25,8 @@ export interface PIIGuardConfig {
   redact?: boolean;
   /** Redaction placeholder */
   redactionPlaceholder?: string;
+  /** Detect encoded PII (base64, hex, URL encoding) */
+  detectEncodedPII?: boolean;
 }
 
 /**
@@ -42,6 +45,7 @@ export class PIIGuard extends HybridGuard {
       patterns: piiConfig.patterns || Object.keys(PII_PATTERNS) as (keyof typeof PII_PATTERNS)[],
       redact: piiConfig.redact ?? false,
       redactionPlaceholder: piiConfig.redactionPlaceholder || '[REDACTED]',
+      detectEncodedPII: piiConfig.detectEncodedPII ?? true, // Default: enabled
     };
   }
 
@@ -53,15 +57,18 @@ export class PIIGuard extends HybridGuard {
     const detections: string[] = [];
     const enabledPatterns = this.piiConfig.patterns!;
 
+    // Normalize unicode characters (fullwidth, zero-width spaces)
+    const normalized = normalizeUnicode(input);
+
     // Quick checks for obvious patterns (only if pattern is enabled)
-    // Email: @ symbol with domain
-    if (enabledPatterns.includes('email') && /@\w+\.\w+/.test(input)) {
+    // Email: @ symbol with domain (check both original and normalized)
+    if (enabledPatterns.includes('email') && (/@\w+\.\w+/.test(input) || /@\w+\.\w+/.test(normalized))) {
       score = Math.max(score, 0.8);
       detections.push('email-like pattern');
     }
 
-    // Phone: sequence of digits with separators
-    if (enabledPatterns.includes('phone') && /\d{3}[-.\s]\d{3}[-.\s]\d{4}/.test(input)) {
+    // Phone: sequence of digits with separators (check both original and normalized)
+    if (enabledPatterns.includes('phone') && (/\d{3}[-.\s]\d{3}[-.\s]\d{4}/.test(input) || /\d{3}[-.\s]\d{3}[-.\s]\d{4}/.test(normalized))) {
       score = Math.max(score, 0.85);
       detections.push('phone-like pattern');
     }
@@ -76,6 +83,18 @@ export class PIIGuard extends HybridGuard {
     if (enabledPatterns.includes('creditCard') && /(?:\d{4}[-\s]?){3}\d{4}/.test(input)) {
       score = Math.max(score, 0.9);
       detections.push('credit card pattern');
+    }
+
+    // IP address with context (higher confidence when explicitly mentioned)
+    if (enabledPatterns.includes('ipAddress') && /(?:ip|address|connect\s+to|server)[:=\s]+(?:\d{1,3}\.){3}\d{1,3}/i.test(input)) {
+      score = Math.max(score, 0.8);
+      detections.push('IP address');
+    }
+
+    // Street address with context keywords
+    if (enabledPatterns.includes('streetAddress') && /(?:address|live|located|ship\s+to|deliver\s+to)[:=\s,]*\d+\s+[A-Za-z]+/i.test(input)) {
+      score = Math.max(score, 0.75);
+      detections.push('street address');
     }
 
     return {
@@ -108,6 +127,22 @@ export class PIIGuard extends HybridGuard {
         // Record detections
         for (const match of matches) {
           detections.push({ type: patternName, value: match });
+        }
+      }
+    }
+
+    // Check for encoded PII (Base64, Hex, URL encoding)
+    if (this.piiConfig.detectEncodedPII) {
+      const piiRegexes = this.piiConfig.patterns!.map(p => PII_PATTERNS[p]);
+      const encodedResult = hasEncodedPII(input, piiRegexes);
+
+      if (encodedResult.found) {
+        maxScore = Math.max(maxScore, 0.95);
+        for (const match of encodedResult.matches) {
+          detections.push({
+            type: 'encoded-pii',
+            value: `${match.encoded} (${match.decoded.slice(0, 20)}...)`,
+          });
         }
       }
     }

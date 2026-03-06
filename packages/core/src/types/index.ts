@@ -2,6 +2,9 @@
  * Core type definitions for openclaw-guardrails
  */
 
+// Export enhanced LLM types
+export * from './llm.js';
+
 // ============================================================================
 // Guard Types
 // ============================================================================
@@ -335,8 +338,10 @@ export interface GuardrailConfig {
   guards?: GuardConfig[];
   /** Detection level preset */
   level?: DetectionLevel;
-  /** Optional LLM provider for L3 checks */
+  /** Optional LLM provider for L3 checks (legacy - use llm config instead) */
   llmProvider?: LLMProvider;
+  /** Enhanced LLM configuration for L3 validation */
+  llm?: import('./llm.js').LLMConfig;
   /** Behavioral analysis configuration */
   behavioral?: BehavioralConfig | boolean;
   /** Budget controls configuration */

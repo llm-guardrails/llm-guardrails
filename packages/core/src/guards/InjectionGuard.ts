@@ -72,17 +72,17 @@ export class InjectionGuard extends HybridGuard {
     }
 
     // Direct instruction override keywords
-    if (/ignore\s+(all\s+)?(previous|above|prior)/i.test(input)) {
+    if (/ignore\s+(all\s+)?(the\s+)?(previous|above|prior)/i.test(input)) {
       score = Math.max(score, 1.0);
       detections.push('instruction override');
     }
 
-    if (/disregard\s+(all\s+)?(previous|above|prior)/i.test(input)) {
+    if (/disregard\s+(all\s+)?(the\s+)?(previous|above|prior)/i.test(input)) {
       score = Math.max(score, 1.0);
       detections.push('instruction override');
     }
 
-    if (/forget\s+(all\s+)?(previous|above|prior)/i.test(input)) {
+    if (/forget\s+(all\s+|everything\s+)?(the\s+)?(previous|above|prior|you\s+were\s+told)/i.test(input)) {
       score = Math.max(score, 0.95);
       detections.push('instruction override');
     }
@@ -93,9 +93,23 @@ export class InjectionGuard extends HybridGuard {
       detections.push('role confusion');
     }
 
-    if (/act\s+as\s+(a|an)\s+/i.test(input)) {
+    // Match jailbreak forms only (not legitimate "act as X" role-playing)
+    // "act like" or "act as if" are jailbreak attempts
+    if (/(?:act|behave)\s+(?:like|as\s+if)/i.test(input)) {
       score = Math.max(score, 0.85);
       detections.push('role confusion');
+    }
+
+    // "from now on, act as" is a jailbreak attempt
+    if (/from\s+now\s+on,?\s+act\s+as/i.test(input)) {
+      score = Math.max(score, 0.9);
+      detections.push('role confusion');
+    }
+
+    // "act as" or "you are now" with known jailbreak roles (DAN, admin, developer, sudo, etc.)
+    if (/(?:act\s+as|you\s+are\s+now)\s+(?:a|an)?\s*(?:DAN|admin|developer|sudo|root|system|god|unrestricted|unfiltered)/i.test(input)) {
+      score = Math.max(score, 1.0);
+      detections.push('jailbreak role');
     }
 
     // Jailbreak attempts (if enabled)
@@ -196,9 +210,10 @@ export class InjectionGuard extends HybridGuard {
       detections.push({ pattern: 'code block', match: 'code execution attempt' });
     }
 
-    if (/exec\(|eval\(|system\(/i.test(input)) {
+    // Only flag eval/exec/system if used with variables/user input, not in educational context
+    if (/(?:exec|eval|system)\s*\(\s*(?!["']\s*\))[a-z_$][\w$]*\s*[,\)]/i.test(input)) {
       maxScore = Math.max(maxScore, 0.85);
-      detections.push({ pattern: 'code execution', match: 'dangerous function' });
+      detections.push({ pattern: 'code execution', match: 'dangerous function with variable' });
     }
 
     // SQL injection patterns
@@ -277,7 +292,7 @@ Respond with JSON only:
 }`;
 
     try {
-      const response = await this.callLLM(provider, prompt);
+      const response = await this.callLegacyLLM(provider, prompt);
       const result = JSON.parse(response);
 
       return {

@@ -12,7 +12,7 @@
 
 import type { TierResult, HybridDetectionConfig } from '../types';
 import { HybridGuard } from './base/HybridGuard';
-import { TOXICITY_KEYWORDS } from '../utils/patterns';
+import { TOXICITY_KEYWORDS, TOXICITY_PATTERNS } from '../utils/patterns';
 
 /**
  * Toxicity detection configuration
@@ -138,7 +138,16 @@ export class ToxicityGuard extends HybridGuard {
     let maxScore = (context?.l1 as TierResult)?.score || 0;
     const detections: string[] = [];
 
-    // Insults and name-calling
+    // Check enhanced toxicity patterns
+    for (const pattern of TOXICITY_PATTERNS) {
+      if (pattern.test(input)) {
+        maxScore = Math.max(maxScore, 0.85);
+        detections.push('toxic pattern detected');
+        // Continue checking for multiple matches
+      }
+    }
+
+    // Additional insults and name-calling
     const insultPatterns = [
       /\b(idiot|moron|stupid|dumb|pathetic|loser|worthless)\b/i,
       /\b(scum|trash|garbage|waste)\s+of\s+(space|life)/i,
@@ -149,7 +158,6 @@ export class ToxicityGuard extends HybridGuard {
       if (pattern.test(input)) {
         maxScore = Math.max(maxScore, 0.8);
         detections.push('insult');
-        break;
       }
     }
 
@@ -267,7 +275,7 @@ Respond with JSON only:
 }`;
 
     try {
-      const response = await this.callLLM(provider, prompt);
+      const response = await this.callLegacyLLM(provider, prompt);
       const result = JSON.parse(response);
 
       return {

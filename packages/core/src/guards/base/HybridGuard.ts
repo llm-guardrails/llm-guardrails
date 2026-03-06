@@ -8,6 +8,7 @@ import type {
   CheckContext,
   HybridDetectionConfig,
   TierResult,
+  LLMConfig,
 } from '../../types';
 import { DetectionLayer } from '../../engine/DetectionLayer';
 
@@ -17,8 +18,14 @@ import { DetectionLayer } from '../../engine/DetectionLayer';
 export abstract class HybridGuard extends DetectionLayer implements Guard {
   public abstract readonly name: string;
 
-  constructor(config: HybridDetectionConfig) {
-    super(config);
+  constructor(
+    config: HybridDetectionConfig,
+    options?: {
+      name?: string;
+      llmConfig?: LLMConfig;
+    }
+  ) {
+    super(config, options);
   }
 
   /**

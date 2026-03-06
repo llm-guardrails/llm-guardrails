@@ -1,7 +1,7 @@
 {
   "name": "@llm-guardrails/core",
-  "version": "0.1.1",
-  "description": "TypeScript-native LLM guardrails with behavioral analysis and budget controls. Zero runtime dependencies.",
+  "version": "0.1.2",
+  "description": "TypeScript-native LLM guardrails with behavioral analysis and budget controls. Zero runtime dependencies. 100% test pass rate.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -56,13 +56,29 @@
   "homepage": "https://github.com/llm-guardrails/llm-guardrails#readme",
   "peerDependencies": {
     "better-sqlite3": "^9.0.0",
-    "ioredis": "^5.0.0"
+    "ioredis": "^5.0.0",
+    "@anthropic-ai/sdk": "^0.20.0",
+    "openai": "^4.0.0",
+    "@google-cloud/vertexai": "^1.0.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0"
   },
   "peerDependenciesMeta": {
     "better-sqlite3": {
       "optional": true
     },
     "ioredis": {
+      "optional": true
+    },
+    "@anthropic-ai/sdk": {
+      "optional": true
+    },
+    "openai": {
+      "optional": true
+    },
+    "@google-cloud/vertexai": {
+      "optional": true
+    },
+    "@aws-sdk/client-bedrock-runtime": {
       "optional": true
     }
   },

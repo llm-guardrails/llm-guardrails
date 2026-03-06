@@ -38,7 +38,7 @@ export interface SecretGuardConfig {
  * Secret Guard implementation
  */
 export class SecretGuard extends HybridGuard {
-  public readonly name = 'secret';
+  public readonly name = 'secrets';
   private secretConfig: Required<SecretGuardConfig>;
 
   constructor(
@@ -69,10 +69,26 @@ export class SecretGuard extends HybridGuard {
       detections.push('OpenAI API key');
     }
 
-    // AWS Access Key ID (AKIA...)
-    if (/\bAKIA[0-9A-Z]{16}\b/.test(input)) {
+    // AWS Access Key ID (AKIA...) - flexible length to catch variations
+    if (/\bAKIA[0-9A-Z]{16,}\b/.test(input)) {
       score = Math.max(score, 1.0);
       detections.push('AWS access key');
+    }
+
+    // AWS credentials with context (environment variables, config)
+    if (/AWS_ACCESS_KEY_ID\s*[:=]\s*AKIA[0-9A-Z]+/i.test(input)) {
+      score = Math.max(score, 1.0);
+      detections.push('AWS access key');
+    }
+
+    if (/AWS_SECRET_ACCESS_KEY\s*[:=]\s*[A-Za-z0-9/+=]{20,}/i.test(input)) {
+      score = Math.max(score, 1.0);
+      detections.push('AWS secret key');
+    }
+
+    if (/AWS_SESSION_TOKEN\s*[:=]\s*[A-Za-z0-9+/=]{20,}/i.test(input)) {
+      score = Math.max(score, 1.0);
+      detections.push('AWS session token');
     }
 
     // GitHub tokens (ghp_, gho_, ghs_, ghu_, ghr_)
@@ -189,8 +205,15 @@ export class SecretGuard extends HybridGuard {
       for (const str of highEntropyStrings) {
         const entropy = calculateEntropy(str);
 
-        // Only flag if it looks like a secret (no spaces, reasonable length)
-        if (!/\s/.test(str) && str.length >= this.secretConfig.minSecretLength) {
+        // Only flag if it looks like a secret:
+        // - No spaces
+        // - Reasonable length
+        // - Contains alphanumeric characters (not just punctuation)
+        if (
+          !/\s/.test(str) &&
+          str.length >= this.secretConfig.minSecretLength &&
+          /[a-zA-Z0-9]/.test(str)
+        ) {
           maxScore = Math.max(maxScore, 0.8);
           detections.push({
             type: 'high-entropy string',
@@ -291,7 +314,7 @@ Respond with JSON only:
 }`;
 
     try {
-      const response = await this.callLLM(provider, prompt);
+      const response = await this.callLegacyLLM(provider, prompt);
       const result = JSON.parse(response);
 
       return {

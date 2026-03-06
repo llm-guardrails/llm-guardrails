@@ -34,6 +34,18 @@ export { TokenCounter } from './budget/TokenCounter';
 export { CostCalculator } from './budget/CostCalculator';
 export { MODEL_PRICING, getModelPricing } from './budget/pricing/models';
 
+// LLM Providers (L3 Validation) - Coming in v0.2.0
+// export {
+//   AnthropicLLMProvider,
+//   OpenAILLMProvider,
+//   LiteLLMProvider,
+//   VertexLLMProvider,
+//   BedrockLLMProvider,
+// } from './llm/providers';
+// export { PromptEngine } from './llm/prompts';
+// export { LLMCache } from './llm/cache';
+// export { LLMBudgetTracker } from './llm/budget';
+
 // Gateway Adapters
 export { Guardrails } from './adapters/Guardrails';
 export { AnthropicAdapter } from './adapters/AnthropicAdapter';
@@ -66,9 +78,25 @@ export type {
   DetectionTierConfig,
   HybridDetectionConfig,
   TierResult,
-  // LLM provider
+  // LLM provider (legacy)
   LLMProvider,
   LLMOptions,
+  // LLM V2 (enhanced)
+  LLMProviderV2,
+  LLMValidationResult,
+  LLMValidationOptions,
+  LLMProviderInfo,
+  LLMConfig,
+  CacheConfig,
+  CacheEntry,
+  CacheStats,
+  LLMBudgetConfig,
+  LLMBudgetUsage,
+  LLMBudgetStatus,
+  PromptStrategy,
+  ParsedLLMResponse,
+  EscalationConfig,
+  FallbackConfig,
   // Behavioral types
   ToolCallEvent,
   DetectedThreat,
