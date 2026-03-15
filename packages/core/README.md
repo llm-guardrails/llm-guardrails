@@ -2,7 +2,7 @@
 
 > **Protect your AI applications from prompt injection, data leaks, and abuse in just 3 lines of code**
 
-**Status**: ✅ **Production Ready** (v0.1.4) | 🚀 **12μs average latency** | ⚡ **80,000 checks/sec**
+**Status**: ✅ **Production Ready** (v0.1.6) | 🚀 **12μs average latency** | ⚡ **80,000 checks/sec**
 
 The first TypeScript-native guardrails system with zero dependencies, combining ultra-fast content scanning, behavioral threat detection, and budget controls in one unified package.
 
@@ -194,7 +194,7 @@ All performance targets **exceeded** by 40x:
 | **L3 LLM Validation** | ✅ 5 providers | ❌ No | ❌ No | ❌ No | ❌ No |
 | **SDK Integrations** | OpenAI, Anthropic, Mastra, LiteLLM | OpenClaw only | Multiple | Unknown | Limited |
 | **License** | MIT | MIT | MIT | MIT | MIT |
-| **Maturity** | v0.1.4 (Production) | v6.7+ (Mature) | v0.5 (Early) | v1.0 (Stable) | v0.9+ (Mature) |
+| **Maturity** | v0.1.6 (Production) | v6.7+ (Mature) | v0.5 (Early) | v1.0 (Stable) | v0.9+ (Mature) |
 
 **Why choose @llm-guardrails?**
 - ✅ **10-50x faster** than TypeScript competitors, **1000x faster** than Python libraries
