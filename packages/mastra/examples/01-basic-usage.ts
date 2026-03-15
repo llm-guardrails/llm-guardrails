@@ -24,6 +24,7 @@ const createMockAgent = (name: string) => ({
   },
 });
 
+async function main() {
 console.log('=== Mastra Guardrails - Basic Usage ===\n');
 
 // Example 1: Simple decorator usage
@@ -115,3 +116,7 @@ console.log('   ✓ Tool output checks: enabled');
 console.log('   ✓ Final response checks: enabled\n');
 
 console.log('=== Example Complete ===');
+}
+
+// Run the example
+main().catch(console.error);

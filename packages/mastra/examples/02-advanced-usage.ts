@@ -50,6 +50,7 @@ const createAgentWithTools = (name: string) => ({
   },
 });
 
+async function main() {
 console.log('=== Mastra Guardrails - Advanced Usage ===\n');
 
 // Example 1: Factory pattern for multiple agents
@@ -302,3 +303,7 @@ configs.forEach((config) => {
 });
 
 console.log('\n=== Example Complete ===');
+}
+
+// Run the example
+main().catch(console.error);
