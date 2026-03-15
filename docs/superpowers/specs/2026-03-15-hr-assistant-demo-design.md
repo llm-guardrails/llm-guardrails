@@ -38,7 +38,7 @@ Create a production-quality demo repository showcasing `@llm-guardrails/mastra` 
 hr-assistant-demo/
 ├── src/
 │   ├── agent/              # Mastra agent configuration
-│   ├── tools/              # HR tools (6 total)
+│   ├── tools/              # HR tools (7 total)
 │   ├── api/                # Express server & routes
 │   ├── data/               # Mock data stores
 │   └── config.ts           # Environment configuration
@@ -59,7 +59,7 @@ hr-assistant-demo/
 #### Agent Module (`src/agent/`)
 - **hr-agent.ts**: Factory function that creates protected Mastra agent
   - Initializes Mastra Agent with system prompt
-  - Registers all 6 tools
+  - Registers all 7 tools
   - Wraps with `quickGuard(agent, 'production')`
   - Returns guarded agent instance
 - **system-prompt.ts**: Agent instructions and personality
@@ -68,7 +68,7 @@ hr-assistant-demo/
   - Constraints: Only access data for authenticated employee
 
 #### Tools Module (`src/tools/`)
-Six HR tools, each in separate file:
+Seven HR tools, each in separate file:
 
 1. **employee-data.ts**
    - `getEmployeeData(employeeId)` - Returns employee profile
@@ -618,7 +618,7 @@ The demo is successful when:
 
 1. **Functionality**
    - Agent can handle basic HR queries
-   - All 6 tools work correctly
+   - All 7 tools work correctly
    - Employee can only access their own data
 
 2. **Security**
