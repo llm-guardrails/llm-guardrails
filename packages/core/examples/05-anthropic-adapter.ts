@@ -5,7 +5,7 @@
  * gateway adapter. Automatically wraps the client with guardrails.
  */
 
-import { Guardrails } from '../src/adapters/Guardrails';
+import { Guardrails } from '../src/adapters';
 
 // Example: How to use with actual Anthropic SDK
 async function exampleWithAnthropicSDK() {

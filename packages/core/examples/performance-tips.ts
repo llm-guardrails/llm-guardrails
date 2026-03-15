@@ -7,6 +7,7 @@
 import { GuardrailEngine } from '../src';
 import type { GuardResult } from '../src';
 
+async function main() {
 console.log('⚡ Performance Tips and Tricks\n');
 
 // ============================================================================
@@ -282,3 +283,7 @@ console.log('');
 console.log('This is 30-50x faster than our <0.5ms target! 🚀');
 
 console.log('\n\n✅ Performance Tips Complete!');
+}
+
+// Run the example
+main().catch(console.error);

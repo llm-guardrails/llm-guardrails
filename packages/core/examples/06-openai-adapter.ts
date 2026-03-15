@@ -5,7 +5,7 @@
  * gateway adapter. Supports both streaming and non-streaming.
  */
 
-import { Guardrails } from '../src/adapters/Guardrails';
+import { Guardrails } from '../src/adapters';
 
 // Example: How to use with actual OpenAI SDK
 async function exampleWithOpenAISDK() {

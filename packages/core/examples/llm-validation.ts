@@ -15,6 +15,7 @@ import { GuardrailEngine } from '../src';
 import { MockLLMProvider } from '../src/llm/__tests__/MockLLMProvider';
 import type { LLMConfig } from '../src/types/llm';
 
+async function main() {
 console.log('🧪 L3 LLM Validation Example\n');
 
 // ============================================================================
@@ -341,3 +342,7 @@ console.log('so average latency stays very low while accuracy improves!');
 console.log('');
 
 console.log('\n✅ L3 LLM Validation Example Complete!');
+}
+
+// Run the example
+main().catch(console.error);
