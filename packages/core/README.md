@@ -2,7 +2,7 @@
 
 > **Protect your AI applications from prompt injection, data leaks, and abuse in just 3 lines of code**
 
-**Status**: ✅ **Production Ready** (v0.1.6) | 🚀 **12μs average latency** | ⚡ **80,000 checks/sec**
+**Status**: ✅ **Production Ready** (v0.1.8) | 🚀 **12μs average latency** | ⚡ **80,000 checks/sec**
 
 The first TypeScript-native guardrails system with zero dependencies, combining ultra-fast content scanning, behavioral threat detection, and budget controls in one unified package.
 
