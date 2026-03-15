@@ -1,6 +1,6 @@
 {
   "name": "@llm-guardrails/core",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "TypeScript-native LLM guardrails with behavioral analysis and budget controls. Zero runtime dependencies. 100% test pass rate.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
