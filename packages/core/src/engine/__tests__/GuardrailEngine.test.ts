@@ -174,8 +174,8 @@ describe('GuardrailEngine', () => {
         }
       }
 
-      // Create engine with no default guards
-      const engine = new GuardrailEngine({ guards: [] });
+      // Create engine with fail-open mode
+      const engine = new GuardrailEngine({ guards: [], failMode: 'open' });
       engine.addGuard(new ErrorGuard());
 
       const result = await engine.checkInput('test');
@@ -183,7 +183,7 @@ describe('GuardrailEngine', () => {
       // Should not throw, should continue with other guards
       expect(result).toBeDefined();
       expect(result.results.length).toBe(1);
-      expect(result.results[0].passed).toBe(false);
+      expect(result.results[0].passed).toBe(true); // fail-open passes
     });
   });
 
