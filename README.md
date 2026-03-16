@@ -282,6 +282,25 @@ const guardedAgent = quickGuard(agent, 'production'); // ✨ One line!
 const response = await guardedAgent.generate(userInput); // Protected!
 ```
 
+### Mastra Multi-Agent (Gateway Guards)
+
+```typescript
+import { guardGateway, guardAgent } from '@llm-guardrails/mastra';
+
+// Gateway: Pre-routing protection for all agents
+const guardedMastra = guardGateway(mastra, {
+  input: ['injection', 'pii'],
+  output: [],
+});
+
+// Agent: Post-processing protection per agent
+const guardedAgent = guardAgent(agent, {
+  input: [],
+  output: ['leakage', 'secrets'],
+  outputBlockStrategy: 'block',
+});
+```
+
 **More integrations**: [OpenAI SDK](./packages/openai/README.md) • [Anthropic SDK](./packages/anthropic/README.md) • [LiteLLM (100+ models)](./docs/LITELLM-INTEGRATION.md) • [Mastra](./docs/MASTRA-INTEGRATION.md)
 
 ---
@@ -298,6 +317,7 @@ const response = await guardedAgent.generate(userInput); // Protected!
 - **[Anthropic SDK](./packages/anthropic/README.md)** - Drop-in replacement (1 line change)
 - **[LiteLLM](./docs/LITELLM-INTEGRATION.md)** - Access 100+ models (Anthropic, OpenAI, Gemini, Ollama, etc.)
 - **[Mastra](./docs/MASTRA-INTEGRATION.md)** - Protect Mastra AI agents
+- **[Gateway Guards](./docs/GATEWAY-GUARDS.md)** - Multi-layer defense for orchestrators
 - **[Integration Comparison](./docs/INTEGRATION-COMPARISON.md)** - Choose the right approach
 
 ### Advanced
