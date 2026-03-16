@@ -29,3 +29,12 @@ export type {
   GuardrailResult,
   GuardResult,
 } from '@llm-guardrails/core';
+
+// Processor interface (native Mastra integration)
+export {
+  GuardrailInputProcessor,
+  GuardrailOutputProcessor,
+  GuardrailStreamProcessor,
+  GuardrailProcessor,
+} from './processors';
+export type { Processor } from './processors';
