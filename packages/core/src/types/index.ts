@@ -54,6 +54,10 @@ export interface GuardrailResult {
   totalLatency?: number;
   /** Session ID (if applicable) */
   sessionId?: string;
+  /** Additional metadata */
+  metadata?: Record<string, unknown>;
+  /** Sanitized version (if applicable) */
+  sanitized?: string;
 }
 
 /**
