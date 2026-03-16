@@ -22,6 +22,8 @@ import { ProfanityGuard } from '../guards/ProfanityGuard';
 import { LeakageGuard } from '../guards/LeakageGuard';
 import { Observability } from '../observability';
 import { CacheManager } from '../cache/CacheManager';
+import { FailModeHandler } from './FailModeHandler';
+import { OutputBlocker } from './OutputBlocker';
 
 /**
  * Main guardrail engine
@@ -31,6 +33,8 @@ export class GuardrailEngine {
   private config: GuardrailConfig;
   private observability?: Observability;
   private cacheManager?: CacheManager;
+  private failModeHandler?: FailModeHandler;
+  private outputBlocker?: OutputBlocker;
 
   constructor(config: GuardrailConfig = {}) {
     this.config = config;
@@ -43,6 +47,22 @@ export class GuardrailEngine {
     // Initialize cache if configured
     if (config.cache?.enabled) {
       this.cacheManager = new CacheManager(config.cache);
+    }
+
+    // Initialize fail mode handler
+    if (config.failMode) {
+      this.failModeHandler = new FailModeHandler(config.failMode);
+    }
+
+    // Initialize output blocker
+    if (config.outputBlockStrategy || config.blockedMessage || config.responseTransform) {
+      this.outputBlocker = new OutputBlocker(
+        config.outputBlockStrategy || 'block',
+        {
+          blockedMessage: config.blockedMessage,
+          responseTransform: config.responseTransform,
+        }
+      );
     }
 
     this.initializeGuards();
@@ -152,9 +172,15 @@ export class GuardrailEngine {
     output: string,
     context?: CheckContext
   ): Promise<GuardrailResult> {
-    // For now, use same checks as input
-    // Future: could have different guards for output
-    return this.checkInput(output, context);
+    // Run guards on output (same as input checks)
+    const result = await this.checkInput(output, context);
+
+    // If output is blocked and outputBlocker is configured, apply blocking strategy
+    if (result.blocked && this.outputBlocker) {
+      return this.outputBlocker.applyStrategy(result, output);
+    }
+
+    return result;
   }
 
   /**
