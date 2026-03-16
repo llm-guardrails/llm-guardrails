@@ -384,3 +384,6 @@ export class GuardrailViolation extends Error {
     Error.captureStackTrace(this, GuardrailViolation);
   }
 }
+
+// Output guard types
+export * from './output';
