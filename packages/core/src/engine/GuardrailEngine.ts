@@ -49,10 +49,8 @@ export class GuardrailEngine {
       this.cacheManager = new CacheManager(config.cache);
     }
 
-    // Initialize fail mode handler
-    if (config.failMode) {
-      this.failModeHandler = new FailModeHandler(config.failMode);
-    }
+    // Initialize fail mode handler (defaults to fail-closed if not configured)
+    this.failModeHandler = new FailModeHandler(config.failMode);
 
     // Initialize output blocker
     if (config.outputBlockStrategy || config.blockedMessage || config.responseTransform) {
@@ -139,13 +137,41 @@ export class GuardrailEngine {
           return guardrailResult;
         }
       } catch (error) {
-        // Log error but don't fail entire check
-        console.error(`Guard ${guard.name} failed:`, error);
-        results.push({
-          passed: false,
-          blocked: false,
-          reason: `Guard error: ${error}`,
-        });
+        // Handle with fail mode
+        const shouldBlock = this.shouldBlockOnError(guard.name, error as Error);
+
+        if (shouldBlock) {
+          // Fail-closed: block on error
+          console.error(`[FAIL-CLOSED] Guard ${guard.name} error:`, error);
+
+          const totalLatency = Date.now() - startTime;
+          return {
+            passed: false,
+            blocked: true,
+            reason: `Security check failed: ${guard.name} (fail-closed mode)`,
+            guard: guard.name,
+            results,
+            totalLatency,
+            sessionId: context?.sessionId,
+            metadata: {
+              failMode: 'closed',
+              error: (error as Error).message,
+            },
+          };
+        } else {
+          // Fail-open: log error but continue
+          console.warn(`[FAIL-OPEN] Guard ${guard.name} error (allowing):`, error);
+
+          results.push({
+            passed: true,
+            blocked: false,
+            reason: `Guard error (fail-open): ${(error as Error).message}`,
+            metadata: {
+              failMode: 'open',
+              error: (error as Error).message,
+            },
+          });
+        }
 
         // End span with error
         if (span) {
@@ -275,6 +301,18 @@ export class GuardrailEngine {
    */
   isCacheEnabled(): boolean {
     return !!this.cacheManager;
+  }
+
+  /**
+   * Determine if guard error should block (using fail mode)
+   */
+  private shouldBlockOnError(guardName: string, error: Error): boolean {
+    // If no failModeHandler configured, default to fail-closed
+    if (!this.failModeHandler) {
+      return true;
+    }
+
+    return this.failModeHandler.shouldBlockOnError(guardName, error);
   }
 
   /**
