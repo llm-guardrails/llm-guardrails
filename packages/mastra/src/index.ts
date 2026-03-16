@@ -38,3 +38,7 @@ export {
   GuardrailProcessor,
 } from './processors';
 export type { Processor } from './processors';
+
+// Gateway-level guards (layered defense)
+export { guardGateway, guardAgent } from './gateway';
+export type { GatewayGuardConfig, AgentGuardConfig } from './types';
