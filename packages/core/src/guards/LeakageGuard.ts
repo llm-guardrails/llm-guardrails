@@ -22,6 +22,10 @@ export interface LeakageGuardConfig {
   detectTrainingDataExtraction?: boolean;
   /** Custom leakage patterns */
   customPatterns?: RegExp[];
+  /** Custom sensitive terms (string literals) */
+  customTerms?: string[];
+  /** Case-sensitive matching for custom terms */
+  caseSensitive?: boolean;
 }
 
 /**
@@ -30,6 +34,7 @@ export interface LeakageGuardConfig {
 export class LeakageGuard extends HybridGuard {
   public readonly name = 'leakage';
   private leakageConfig: Required<LeakageGuardConfig>;
+  private customTermsRegex?: RegExp;
 
   constructor(
     detectionConfig: HybridDetectionConfig,
@@ -41,7 +46,33 @@ export class LeakageGuard extends HybridGuard {
       detectTrainingDataExtraction:
         leakageConfig.detectTrainingDataExtraction ?? true,
       customPatterns: leakageConfig.customPatterns || [],
+      customTerms: leakageConfig.customTerms || [],
+      caseSensitive: leakageConfig.caseSensitive ?? false,
     };
+
+    // Compile custom terms into efficient regex
+    if (this.leakageConfig.customTerms.length > 0) {
+      this.customTermsRegex = this.compileCustomTerms(
+        this.leakageConfig.customTerms,
+        this.leakageConfig.caseSensitive
+      );
+    }
+  }
+
+  /**
+   * Compile custom terms into efficient regex
+   */
+  private compileCustomTerms(terms: string[], caseSensitive: boolean): RegExp {
+    // Escape special regex characters in terms
+    const escapedTerms = terms.map(term =>
+      term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    );
+
+    // Create alternation pattern with word boundaries
+    const pattern = `\\b(${escapedTerms.join('|')})\\b`;
+    const flags = caseSensitive ? 'g' : 'gi';
+
+    return new RegExp(pattern, flags);
   }
 
   /**
@@ -118,6 +149,15 @@ export class LeakageGuard extends HybridGuard {
     if (/what\s+is\s+before\s+this\s+conversation/i.test(input)) {
       score = Math.max(score, 0.85);
       detections.push('meta-prompting');
+    }
+
+    // Check custom terms
+    if (this.customTermsRegex) {
+      const matches = input.match(this.customTermsRegex);
+      if (matches && matches.length > 0) {
+        score = Math.max(score, 0.95);
+        detections.push(`custom sensitive terms: ${matches.join(', ')}`);
+      }
     }
 
     return {
