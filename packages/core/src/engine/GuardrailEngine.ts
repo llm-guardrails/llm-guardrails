@@ -373,10 +373,17 @@ export class GuardrailEngine {
 
     for (const guardName of guardNames) {
       const name = typeof guardName === 'string' ? guardName : guardName.name;
+      const config = typeof guardName === 'object' ? guardName.config : undefined;
+
       const factory = guardMap[name];
 
       if (factory) {
-        this.guards.push(factory());
+        // Special handling for LeakageGuard with config
+        if (name === 'leakage' && config) {
+          this.guards.push(new LeakageGuard(detectionConfig, config));
+        } else {
+          this.guards.push(factory());
+        }
       }
     }
   }
