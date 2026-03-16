@@ -242,6 +242,63 @@ const guardedAgent = guardWithMonitoring(
 );
 ```
 
+## Gateway-Level Guards
+
+Protect multi-agent orchestrators with separate gateway and agent-level protection:
+
+```typescript
+import { guardGateway, guardAgent } from '@llm-guardrails/mastra';
+
+// Gateway: Pre-routing protection
+const guardedMastra = guardGateway(mastra, {
+  input: ['injection', 'pii'],
+  output: [],
+});
+
+// Agent: Post-processing protection
+const guardedAgent = guardAgent(agent, {
+  input: [],
+  output: ['leakage', 'secrets'],
+  outputBlockStrategy: 'block',
+  blockedMessage: 'I cannot share system information',
+});
+```
+
+**Use cases:**
+- **Gateway guards** validate requests before they reach any agent
+- **Agent guards** check agent outputs for sensitive information leakage
+- **Layered defense** provides defense-in-depth security
+
+## Native Processor Interface
+
+Use guardrails in Mastra's processor pipeline for seamless integration:
+
+```typescript
+import { Agent } from '@mastra/core';
+import { GuardrailProcessor } from '@llm-guardrails/mastra';
+
+const agent = new Agent({
+  name: 'Protected Bot',
+  processors: [
+    new LoggingProcessor(),
+    new GuardrailProcessor({
+      guards: ['injection', 'pii', 'leakage'],
+      outputBlockStrategy: 'block',
+    }),
+    new CachingProcessor(),
+  ],
+});
+
+// Processors run in pipeline order
+// Input → Logging → Guardrails → Agent → Guardrails → Caching → Output
+```
+
+**Available Processors:**
+- `GuardrailProcessor` - All-in-one (input, output, stream)
+- `GuardrailInputProcessor` - Input validation only
+- `GuardrailOutputProcessor` - Output validation only
+- `GuardrailStreamProcessor` - Streaming output validation
+
 ## API Reference
 
 ### `withGuardrails(agent, engine, config?)`

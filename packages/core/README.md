@@ -93,6 +93,65 @@ if (result.blocked) {
 }
 ```
 
+### Output Guard Protection
+
+Protect agent responses from leaking sensitive information:
+
+```typescript
+import { GuardrailEngine } from '@llm-guardrails/core';
+
+const engine = new GuardrailEngine({
+  guards: ['leakage', 'secrets'],
+  outputBlockStrategy: 'block',
+  blockedMessage: 'I cannot share that information',
+});
+
+// Check agent output before returning to user
+const agentResponse = await callYourLLM(userInput);
+const outputCheck = await engine.checkOutput(agentResponse);
+
+if (outputCheck.blocked) {
+  return outputCheck.sanitized; // Safe message
+} else {
+  return agentResponse; // Original response
+}
+```
+
+### Custom Sensitive Terms
+
+Block project-specific terms in responses:
+
+```typescript
+const engine = new GuardrailEngine({
+  guards: [
+    {
+      name: 'leakage',
+      config: {
+        customTerms: ['MyInternalFramework', 'SecretProjectName'],
+      },
+    },
+  ],
+  outputBlockStrategy: 'block',
+});
+```
+
+### Configurable Failure Modes
+
+Balance security vs availability:
+
+```typescript
+const engine = new GuardrailEngine({
+  guards: ['injection', 'pii', 'leakage'],
+  failMode: {
+    mode: 'open',              // Default: prefer availability
+    perGuard: {
+      'injection': 'closed',   // Critical: always block on error
+      'leakage': 'closed',
+    },
+  },
+});
+```
+
 ### Advanced: Full Control
 
 ```typescript
