@@ -354,6 +354,14 @@ export interface GuardrailConfig {
   onBlock?: (result: GuardrailResult) => void;
   /** Callback for warnings */
   onWarn?: (result: GuardrailResult) => void;
+  /** Failure mode for guard errors */
+  failMode?: import('./output.js').FailMode | import('./output.js').FailModeConfig;
+  /** Output blocking strategy */
+  outputBlockStrategy?: import('./output.js').OutputBlockStrategy;
+  /** Custom blocked message template or function */
+  blockedMessage?: import('./output.js').BlockedMessageConfig;
+  /** Response transformer for custom output handling */
+  responseTransform?: import('./output.js').ResponseTransformer;
 }
 
 // ============================================================================
