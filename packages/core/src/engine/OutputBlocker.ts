@@ -1,6 +1,8 @@
 import type {
   OutputBlockStrategy,
   BlockedMessageConfig,
+  BlockedMessageOptions,
+  BlockedMessageWrapper,
   BlockResponse,
   ResponseTransformer,
 } from '../types/output';
@@ -60,12 +62,32 @@ export class OutputBlocker {
    */
   private applyBlockStrategy(result: GuardrailResult): GuardrailResult {
     const message = this.getBlockedMessage(result);
+    const config = this.config.blockedMessage;
 
-    return {
+    // Build result with message
+    const enhancedResult: GuardrailResult = {
       ...result,
       blocked: true,
       sanitized: message,
     };
+
+    // Add metadata if configured
+    if (
+      typeof config === 'object' &&
+      'includeMetadata' in config &&
+      config.includeMetadata
+    ) {
+      enhancedResult.metadata = {
+        ...result.metadata,
+        blocked: true,
+        guard: result.guard,
+        reason: result.reason,
+        timestamp: Date.now(),
+        confidence: result.results[0]?.confidence,
+      };
+    }
+
+    return enhancedResult;
   }
 
   /**
@@ -128,8 +150,80 @@ export class OutputBlocker {
       return response.message;
     }
 
-    // Advanced options (handled in Task 1.5)
+    // Advanced options
+    if (typeof config === 'object' && 'message' in config) {
+      return this.processAdvancedOptions(config, result);
+    }
+
     return '[Response blocked by guardrails]';
+  }
+
+  /**
+   * Process advanced blocked message options
+   */
+  private processAdvancedOptions(
+    config: BlockedMessageOptions,
+    result: GuardrailResult
+  ): string {
+    // Check for per-guard override
+    if (config.perGuard && result.guard && config.perGuard[result.guard]) {
+      const guardMessage = config.perGuard[result.guard];
+
+      if (typeof guardMessage === 'string') {
+        return this.applyWrapper(guardMessage, config.wrapper, result);
+      }
+
+      if (typeof guardMessage === 'function') {
+        const response = guardMessage(result);
+        return this.applyWrapper(response.message, config.wrapper, result);
+      }
+    }
+
+    // Get base message
+    let message: string;
+    if (typeof config.message === 'string') {
+      message = this.expandTemplate(config.message, result);
+    } else {
+      const response = config.message(result);
+      message = response.message;
+    }
+
+    // Apply wrapper if configured
+    if (config.wrapper) {
+      message = this.applyWrapper(message, config.wrapper, result);
+    }
+
+    return message;
+  }
+
+  /**
+   * Apply wrapper to message
+   */
+  private applyWrapper(
+    message: string,
+    wrapper: BlockedMessageWrapper | undefined,
+    result: GuardrailResult
+  ): string {
+    if (!wrapper) {
+      return message;
+    }
+
+    // Tag format takes precedence
+    if (wrapper.tagFormat) {
+      const tag = this.expandTemplate(wrapper.tagFormat, result);
+      return `${tag} ${message}`;
+    }
+
+    // Apply prefix and suffix
+    let wrapped = message;
+    if (wrapper.prefix) {
+      wrapped = wrapper.prefix + wrapped;
+    }
+    if (wrapper.suffix) {
+      wrapped = wrapped + wrapper.suffix;
+    }
+
+    return wrapped;
   }
 
   /**
