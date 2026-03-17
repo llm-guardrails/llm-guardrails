@@ -417,7 +417,16 @@ export class GuardrailEngine {
 
     const config = presets[level] || presets.standard;
 
-    // Enable L3 if LLM provider configured
+    // Prefilter mode: Only use L1+L2, never L3
+    if (this.config.prefilterMode) {
+      // Ensure tier3 is disabled
+      if (config.tier3) {
+        config.tier3.enabled = false;
+      }
+      return config;
+    }
+
+    // Enable L3 if LLM provider configured (and not in prefilter mode)
     if (this.config.llmProvider && config.tier3) {
       config.tier3.enabled = true;
       config.tier3.provider = this.config.llmProvider;
