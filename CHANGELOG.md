@@ -5,6 +5,50 @@ All notable changes to @llm-guardrails/core will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-17
+
+### Added
+
+#### Gateway-Level Guards (Multi-Agent Protection)
+- **`guardGateway()`**: Gateway-level guard wrapper for orchestrators
+  - Pre-routing input validation before reaching agents
+  - Post-processing output validation across all agents
+  - Shared security policy for entire multi-agent system
+  - Reduces redundant validation overhead
+- **`guardAgent()`**: Agent-level guard wrapper for individual agents
+  - Agent-specific input/output validation
+  - Separate policies per agent
+  - Fine-grained control over agent behavior
+  - Output blocking strategies per agent
+- **Two-Layer Defense Architecture**:
+  - Gateway validates universal threats (injection, toxicity)
+  - Agents check agent-specific risks (leakage, secrets)
+  - Defense-in-depth security model
+  - Avoid duplicate validation
+- **Integration Tests**: 5 tests for gateway + agent architecture
+- **Full E2E Test**: Comprehensive test demonstrating all 6 features working together
+
+### Enhanced
+- **GuardrailEngine**: Support guard config when instantiating guards (e.g., LeakageGuard with customTerms)
+- **Type System**: New `GatewayGuardConfig` and `AgentGuardConfig` types
+
+### Documentation
+- **GATEWAY-GUARDS.md**: Comprehensive 560+ line guide covering:
+  - Quick start examples
+  - Gateway-level and agent-level APIs
+  - Three layered defense patterns
+  - Multi-agent system integration
+  - Best practices and troubleshooting
+  - Complete API reference
+- **README Updates**: Gateway guards examples in main README and Mastra README
+- **Integration Examples**: Multi-agent orchestration patterns
+
+### Testing
+- **Core Package**: 530/534 tests passing (99.3%)
+- **Mastra Package**: 38/38 tests passing (100%)
+- **Total**: 568/572 tests passing (99.3%)
+- **New Tests**: 12 new tests added for gateway guards and E2E validation
+
 ## [0.2.0] - 2026-03-16
 
 ### Added

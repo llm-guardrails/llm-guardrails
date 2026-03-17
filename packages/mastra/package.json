@@ -1,6 +1,6 @@
 {
   "name": "@llm-guardrails/mastra",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Mastra integration for LLM Guardrails - Add guardrails to Mastra agents and LLMs",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -44,7 +44,7 @@
   "homepage": "https://github.com/llm-guardrails/llm-guardrails#readme",
   "peerDependencies": {
     "@mastra/core": ">=0.1.0",
-    "@llm-guardrails/core": "^0.2.0"
+    "@llm-guardrails/core": "^0.3.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
