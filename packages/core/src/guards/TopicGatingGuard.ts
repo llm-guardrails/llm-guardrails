@@ -39,7 +39,7 @@ export interface TopicGatingGuardConfig {
  */
 export class TopicGatingGuard extends HybridGuard {
   public readonly name = 'topic-gating';
-  private config: Required<TopicGatingGuardConfig>;
+  private guardConfig: Required<TopicGatingGuardConfig>;
   private blockedKeywordsRegex?: RegExp;
   private allowedKeywordsRegex?: RegExp;
 
@@ -59,7 +59,7 @@ export class TopicGatingGuard extends HybridGuard {
       );
     }
 
-    this.config = {
+    this.guardConfig = {
       allowedTopicsDescription: guardConfig.allowedTopicsDescription || '',
       blockedTopicsDescription: guardConfig.blockedTopicsDescription || '',
       blockedKeywords: guardConfig.blockedKeywords || [],
@@ -69,17 +69,17 @@ export class TopicGatingGuard extends HybridGuard {
     };
 
     // Compile keywords into efficient regex patterns
-    if (this.config.blockedKeywords.length > 0) {
+    if (this.guardConfig.blockedKeywords.length > 0) {
       this.blockedKeywordsRegex = this.compileKeywords(
-        this.config.blockedKeywords,
-        this.config.caseSensitive
+        this.guardConfig.blockedKeywords,
+        this.guardConfig.caseSensitive
       );
     }
 
-    if (this.config.allowedKeywords.length > 0) {
+    if (this.guardConfig.allowedKeywords.length > 0) {
       this.allowedKeywordsRegex = this.compileKeywords(
-        this.config.allowedKeywords,
-        this.config.caseSensitive
+        this.guardConfig.allowedKeywords,
+        this.guardConfig.caseSensitive
       );
     }
   }
@@ -100,9 +100,39 @@ export class TopicGatingGuard extends HybridGuard {
     return new RegExp(pattern, flags);
   }
 
-  // Placeholder methods - will implement in next tasks
+  /**
+   * L1: Quick heuristic checks (<1ms)
+   * Fast keyword-based detection for obvious topic violations
+   */
   protected detectL1(input: string): TierResult {
-    return { score: 0 };
+    let score = 0;
+    const detections: string[] = [];
+
+    // Check allowed keywords first (higher priority)
+    if (this.allowedKeywordsRegex?.test(input)) {
+      score = 0.0; // Definitely allowed
+      detections.push('allowed keyword detected');
+      return {
+        score,
+        reason: detections.join(', '),
+        metadata: { detections },
+      };
+    }
+
+    // Check blocked keywords
+    if (this.blockedKeywordsRegex) {
+      const matches = input.match(this.blockedKeywordsRegex);
+      if (matches && matches.length > 0) {
+        score = 1.0; // Definitely blocked
+        detections.push(`blocked keyword: ${matches[0]}`);
+      }
+    }
+
+    return {
+      score,
+      reason: detections.length > 0 ? detections.join(', ') : undefined,
+      metadata: { detections },
+    };
   }
 
   protected detectL2(input: string, context?: Record<string, unknown>): TierResult {
