@@ -10,6 +10,7 @@
 
 import type { TierResult, HybridDetectionConfig } from '../types';
 import { HybridGuard } from './base/HybridGuard';
+import { getTopicGatingPrompt } from '../llm/prompts/topic-gating-template';
 
 /**
  * Topic gating configuration
@@ -49,11 +50,11 @@ export class TopicGatingGuard extends HybridGuard {
   ) {
     super(detectionConfig);
 
-    // Validate configuration
-    if (!guardConfig.allowedTopicsDescription &&
-        !guardConfig.blockedTopicsDescription &&
-        !guardConfig.blockedKeywords?.length &&
-        !guardConfig.allowedKeywords?.length) {
+    // Validate configuration - need at least one configuration option
+    const hasTopicDescriptions = guardConfig.allowedTopicsDescription || guardConfig.blockedTopicsDescription;
+    const hasKeywords = guardConfig.blockedKeywords?.length || guardConfig.allowedKeywords?.length;
+
+    if (!hasTopicDescriptions && !hasKeywords) {
       throw new Error(
         'TopicGatingGuard: Must provide either topic descriptions or keywords'
       );
@@ -88,13 +89,25 @@ export class TopicGatingGuard extends HybridGuard {
    * Compile keywords into efficient regex pattern
    */
   private compileKeywords(keywords: string[], caseSensitive: boolean): RegExp {
-    // Escape special regex characters
-    const escapedKeywords = keywords.map(keyword =>
-      keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    );
+    // Escape special regex characters and build patterns
+    const patterns = keywords.map(keyword => {
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    // Create alternation pattern with word boundaries
-    const pattern = `\\b(${escapedKeywords.join('|')})\\b`;
+      // Check if keyword contains non-word characters
+      const hasNonWordChars = /[^\w\s]/.test(keyword);
+
+      // Use word boundaries only for pure word keywords
+      if (hasNonWordChars) {
+        // For keywords with special chars, match as standalone tokens
+        // Allow whitespace, punctuation, or string boundaries around them
+        return `(?:^|\\s|\\b)(${escaped})(?=\\s|\\b|$|[.,!?;:])`;
+      } else {
+        // For normal words, use word boundaries
+        return `\\b(${escaped})\\b`;
+      }
+    });
+
+    const pattern = patterns.join('|');
     const flags = caseSensitive ? 'g' : 'gi';
 
     return new RegExp(pattern, flags);
@@ -229,10 +242,89 @@ export class TopicGatingGuard extends HybridGuard {
     };
   }
 
+  /**
+   * L3: Semantic analysis using LLM (50-200ms)
+   * Only called for edge cases where L1/L2 are uncertain
+   */
   protected async detectL3(
     input: string,
     context?: Record<string, unknown>
   ): Promise<TierResult> {
-    return { score: 0 };
+    const provider = this.config.tier3?.provider;
+
+    if (!provider) {
+      // Graceful degradation: use L2 result
+      const l2Score = (context?.l2 as TierResult)?.score || 0;
+      return {
+        score: l2Score,
+        reason: 'L3 provider not configured, using L2 result',
+        metadata: { fallback: 'L2' },
+      };
+    }
+
+    // Skip L3 if no topic descriptions provided
+    if (!this.guardConfig.allowedTopicsDescription && !this.guardConfig.blockedTopicsDescription) {
+      const l2Score = (context?.l2 as TierResult)?.score || 0;
+      return {
+        score: l2Score,
+        reason: 'No topic descriptions for L3, using L2 result',
+        metadata: { fallback: 'L2' },
+      };
+    }
+
+    const l1Score = (context?.l1 as TierResult)?.score || 0;
+    const l2Score = (context?.l2 as TierResult)?.score || 0;
+
+    // Generate prompt
+    const prompt = getTopicGatingPrompt(
+      input,
+      this.guardConfig.allowedTopicsDescription,
+      this.guardConfig.blockedTopicsDescription,
+      l1Score,
+      l2Score
+    );
+
+    try {
+      const response = await this.callLegacyLLM(provider, prompt);
+      const result = JSON.parse(response);
+
+      // Validate response
+      if (typeof result.blocked !== 'boolean') {
+        throw new Error('Invalid LLM response: missing blocked field');
+      }
+
+      if (typeof result.confidence !== 'number') {
+        throw new Error('Invalid LLM response: missing confidence field');
+      }
+
+      // If confidence is low, mark as uncertain
+      if (result.confidence < 0.6) {
+        return {
+          score: 0.5,
+          reason: 'Topic classification uncertain',
+          metadata: {
+            llmResult: result,
+            requiresHumanReview: true,
+          },
+        };
+      }
+
+      return {
+        score: result.blocked ? result.confidence : 0,
+        reason: result.blocked ? result.reason : undefined,
+        metadata: {
+          detectedTopic: result.detectedTopic,
+          llmConfidence: result.confidence,
+        },
+      };
+    } catch (error) {
+      console.error('L3 detection failed:', error);
+      // Fall back to L2 result
+      return {
+        score: l2Score,
+        reason: 'L3 detection error, using L2 result',
+        metadata: { error: String(error), fallback: 'L2' },
+      };
+    }
   }
 }

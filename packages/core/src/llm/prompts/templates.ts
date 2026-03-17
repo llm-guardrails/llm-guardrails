@@ -475,3 +475,8 @@ export function getPromptTemplate(guardType: string): string {
   const normalizedType = guardType.toLowerCase().replace(/guard$/, '').trim();
   return GUARD_PROMPTS[normalizedType] || GENERIC_PROMPT;
 }
+
+/**
+ * Topic gating prompt (special handling - uses function)
+ */
+export { getTopicGatingPrompt } from './topic-gating-template.js';

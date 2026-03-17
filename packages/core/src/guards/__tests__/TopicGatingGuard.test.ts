@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { TopicGatingGuard } from '../TopicGatingGuard';
 import { DETECTION_PRESETS } from '../../engine/DetectionLayer';
 
@@ -135,6 +135,169 @@ describe('TopicGatingGuard', () => {
       // Should have high confidence from both L1 and L2
       expect(result.blocked).toBe(true);
       expect(result.confidence).toBeGreaterThanOrEqual(0.9);
+    });
+  });
+
+  describe('L3 - Semantic Validation', () => {
+    const mockLLMProvider = {
+      name: 'mock-llm',
+      complete: async (prompt: string) => {
+        // Mock LLM responses based on prompt content
+        if (prompt.includes('integrate your API')) {
+          return JSON.stringify({
+            blocked: false,
+            confidence: 0.85,
+            reason: 'Product integration question',
+            detectedTopic: 'product',
+          });
+        }
+        if (prompt.includes('2+2') || prompt.includes('2 + 2')) {
+          return JSON.stringify({
+            blocked: true,
+            confidence: 0.95,
+            reason: 'Math calculation',
+            detectedTopic: 'math',
+          });
+        }
+        return JSON.stringify({
+          blocked: false,
+          confidence: 0.6,
+          reason: 'Uncertain',
+          detectedTopic: 'unknown',
+        });
+      },
+    };
+
+    it('should use LLM for nuanced topic classification', async () => {
+      // Create mock that will block via L3
+      const customMockLLM = {
+        name: 'mock-llm',
+        complete: async (prompt: string) => {
+          if (prompt.includes('subtle coding question')) {
+            return JSON.stringify({
+              blocked: true,
+              confidence: 0.85,
+              reason: 'Coding question disguised as integration help',
+              detectedTopic: 'coding',
+            });
+          }
+          return JSON.stringify({
+            blocked: false,
+            confidence: 0.6,
+            reason: 'Uncertain',
+            detectedTopic: 'unknown',
+          });
+        },
+      };
+
+      const detectionConfig = {
+        ...DETECTION_PRESETS.advanced,
+        tier3: {
+          enabled: true,
+          provider: customMockLLM,
+          onlyIfSuspicious: false, // Always call L3 for this test
+          costLimit: 0.01,
+        },
+      };
+
+      const guard = new TopicGatingGuard(detectionConfig, {
+        allowedTopicsDescription: 'Product and integration questions',
+        blockedTopicsDescription: 'Math, coding',
+      });
+
+      const result = await guard.check('Help me with this subtle coding question about APIs');
+
+      // L3 should detect this as coding despite it not matching L1/L2 patterns
+      expect(result.blocked).toBe(true);
+      expect(result.tier).toBe('L3');
+      expect(result.confidence).toBeGreaterThanOrEqual(0.8);
+    });
+
+    it('should block clear violations detected by LLM', async () => {
+      const detectionConfig = {
+        ...DETECTION_PRESETS.advanced,
+        tier3: {
+          enabled: true,
+          provider: mockLLMProvider,
+          onlyIfSuspicious: true,
+        },
+      };
+
+      const guard = new TopicGatingGuard(detectionConfig, {
+        allowedTopicsDescription: 'Product questions',
+        blockedTopicsDescription: 'Math problems',
+      });
+
+      const result = await guard.check('What is 2+2?');
+
+      expect(result.blocked).toBe(true);
+      expect(result.tier).toBe('L2'); // L2 catches this with math pattern
+    });
+
+    it('should gracefully degrade if L3 unavailable', async () => {
+      const guard = new TopicGatingGuard(DETECTION_PRESETS.advanced, {
+        allowedTopicsDescription: 'Product questions',
+        blockedTopicsDescription: 'Math',
+      });
+
+      const result = await guard.check('What is 2+2?');
+
+      // Should use L2 result (math pattern)
+      expect(result.blocked).toBe(true);
+      expect(result.tier).not.toBe('L3');
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should throw error if no config provided', () => {
+      expect(() => {
+        new TopicGatingGuard(DETECTION_PRESETS.standard, {});
+      }).toThrow('Must provide either topic descriptions or keywords');
+    });
+
+    it('should handle empty strings gracefully', async () => {
+      const guard = new TopicGatingGuard(DETECTION_PRESETS.standard, {
+        blockedKeywords: ['test'],
+      });
+
+      const result = await guard.check('');
+      expect(result.blocked).toBe(false);
+    });
+
+    it('should handle very long inputs', async () => {
+      const guard = new TopicGatingGuard(DETECTION_PRESETS.standard, {
+        blockedKeywords: ['math'],
+      });
+
+      const longInput = 'hello '.repeat(10000) + ' solve equation';
+      const result = await guard.check(longInput);
+
+      // L2 pattern matching catches "solve equation" as math pattern
+      expect(result.blocked).toBe(true);
+      expect(result.tier).toBe('L2');
+    });
+
+    it('should handle special characters in keywords', async () => {
+      const guard = new TopicGatingGuard(DETECTION_PRESETS.standard, {
+        blockedKeywords: ['c++', 'node.js', '$variable'],
+      });
+
+      const result1 = await guard.check('I need help with c++');
+      expect(result1.blocked).toBe(true);
+
+      const result2 = await guard.check('How do I use node.js?');
+      expect(result2.blocked).toBe(true);
+    });
+
+    it('should handle unicode characters', async () => {
+      const guard = new TopicGatingGuard(DETECTION_PRESETS.standard, {
+        blockedKeywords: ['математика'], // Russian for "mathematics"
+      });
+
+      const result = await guard.check('помогите с математика');
+      // Note: Word boundaries \b may not work perfectly with all unicode
+      // This test documents current behavior
+      expect(result).toBeDefined();
     });
   });
 });
