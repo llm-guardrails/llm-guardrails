@@ -354,6 +354,14 @@ export interface GuardrailConfig {
   observability?: import('../observability/types.js').ObservabilityConfig;
   /** Cache configuration for performance optimization */
   cache?: import('../cache/types.js').GuardrailCacheConfig;
+
+  /**
+   * Prefilter mode: Only use L1+L2 detection, never L3
+   * Useful for fast pre-filtering before custom validation
+   * @default false
+   */
+  prefilterMode?: boolean;
+
   /** Callback when input is blocked */
   onBlock?: (result: GuardrailResult) => void;
   /** Callback for warnings */
