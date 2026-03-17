@@ -45,6 +45,29 @@ The **L3 (LLM-based validation)** tier provides deep semantic analysis for edge 
 
 **Recommendation**: Most applications should start with L1+L2 (level: 'standard') and only enable L3 if needed.
 
+### Prefilter Mode (Fast L1+L2 Only)
+
+For cost-sensitive or high-volume scenarios, use **prefilterMode** to disable L3 across all guards:
+
+```typescript
+const engine = new GuardrailEngine({
+  guards: ['injection', 'pii', 'secrets'],
+  prefilterMode: true, // Disables L3, only uses L1+L2
+  level: 'advanced', // L3 config ignored when prefilterMode=true
+});
+
+// All guards will ONLY use L1+L2 detection (< 5ms latency)
+// No LLM calls, zero LLM costs
+// Perfect for: high-volume apps, cost-constrained scenarios, streaming use cases
+```
+
+**Use Cases for Prefilter Mode:**
+- High-volume applications (>1M requests/day)
+- Streaming scenarios where latency matters
+- Cost-sensitive environments
+- First-pass filtering before custom validation
+- Budget-constrained production deployments
+
 ## How It Works
 
 ### Detection Flow
@@ -683,6 +706,84 @@ const engine = new GuardrailEngine({
       onError: 'use-l2',
     },
   },
+});
+```
+
+### Example 5: Topic Gating with L3 Semantic Validation
+
+```typescript
+import { GuardrailEngine, TopicGatingGuard, DETECTION_PRESETS } from '@llm-guardrails/core';
+
+// Option 1: Using string-based API
+const engine = new GuardrailEngine({
+  guards: [
+    {
+      name: 'topic-gating',
+      config: {
+        // L1/L2: Fast keyword and pattern matching
+        blockedKeywords: ['equation', 'solve', 'code', 'function', 'debug'],
+        allowedKeywords: ['pricing', 'order', 'support', 'product', 'feature'],
+
+        // L3: Semantic topic classification with LLM
+        blockedTopicsDescription: 'Math problems, coding questions, debugging help, trivia',
+        allowedTopicsDescription: 'Product questions, pricing, support, feature requests',
+
+        caseSensitive: false,
+        mode: 'block-off-topic',
+      },
+    },
+  ],
+  level: 'advanced',
+  llm: {
+    enabled: true,
+    provider: anthropicProvider,
+    escalation: {
+      onlyIfSuspicious: true, // Only use L3 for ambiguous cases
+    },
+  },
+});
+
+// Will be blocked by L1: "Help me solve this equation"
+// Will be blocked by L2: "What is 2 + 2?"
+// Will use L3 for ambiguous: "Can you help me integrate your API?"
+// (L3 understands this is about product integration, not coding help)
+const result = await engine.checkInput(userMessage);
+
+// Option 2: Using guard instance for more control
+const topicGuard = new TopicGatingGuard(
+  {
+    ...DETECTION_PRESETS.advanced,
+    tier3: {
+      enabled: true,
+      provider: anthropicProvider,
+      onlyIfSuspicious: true, // Smart escalation
+    },
+  },
+  {
+    blockedKeywords: ['math', 'coding'],
+    allowedKeywords: ['pricing', 'support'],
+    blockedTopicsDescription: 'Math, coding, trivia',
+    allowedTopicsDescription: 'Product and business questions',
+  }
+);
+
+const engine2 = new GuardrailEngine({
+  guards: [topicGuard, 'pii', 'injection'],
+});
+```
+
+**When L3 is Used:**
+- L1 keyword match: < 1ms (no LLM)
+- L2 pattern match: < 5ms (no LLM)
+- L3 semantic classification: 50-200ms (only for ambiguous cases like "integrate your API")
+
+**Cost Optimization:**
+```typescript
+// For high-volume or cost-sensitive scenarios, disable L3:
+const engine = new GuardrailEngine({
+  guards: [{ name: 'topic-gating', config: { /* ... */ } }],
+  prefilterMode: true, // L1+L2 only, no LLM calls
+  level: 'advanced',
 });
 ```
 
