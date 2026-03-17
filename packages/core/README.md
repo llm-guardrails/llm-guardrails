@@ -2,11 +2,11 @@
 
 > **Protect your AI applications from prompt injection, data leaks, and abuse in just 3 lines of code**
 
-**Status**: ✅ **Production Ready** (v0.1.8) | 🚀 **12μs average latency** | ⚡ **80,000 checks/sec**
+**Status**: ✅ **Production Ready** (v0.4.0) | 🚀 **12μs average latency** | ⚡ **80,000 checks/sec**
 
-The first TypeScript-native guardrails system with zero dependencies, combining ultra-fast content scanning, behavioral threat detection, and budget controls in one unified package.
+The first TypeScript-native guardrails system with zero dependencies, combining ultra-fast content scanning, behavioral threat detection, budget controls, and topic gating in one unified package.
 
-[![Tests](https://img.shields.io/badge/tests-414%20passing-success)](.)
+[![Tests](https://img.shields.io/badge/tests-433%20passing-success)](.)
 [![Pass Rate](https://img.shields.io/badge/pass%20rate-100%25-brightgreen)](.)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](.)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-orange)](.)
@@ -54,17 +54,19 @@ npm install @llm-guardrails/core
 | **Language** | TypeScript | TypeScript | TypeScript | TypeScript | Python |
 | **Performance** | 🥇 **12μs** (0.012ms) | ~50-100ms | ~50-100ms | API-based | 50-200ms |
 | **Dependencies** | 🥇 **0** | 5+ | 8+ | Unknown | 50+ |
-| **Guard Count** | **10 guards** | ~4 guards | Injection only | 2-3 guards | 8 guards |
+| **Guard Count** | **11 guards** | ~4 guards | Injection only | 2-3 guards | 8 guards |
 | **Behavioral Analysis** | ✅ 15+ patterns | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Budget Controls** | ✅ 20+ models | ❌ No | ❌ No | ❌ No | ❌ No |
 | **L3 LLM Validation** | ✅ 5 providers | ❌ No | ❌ No | ❌ No | ❌ No |
-| **Test Pass Rate** | 🥇 **100%** (414/414) | Unknown | Unknown | Unknown | ~90% |
+| **Topic Gating** | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Test Pass Rate** | 🥇 **100%** (433/433) | Unknown | Unknown | Unknown | ~90% |
 
 **Key Advantages:**
 - ✅ **10-1000x faster** - 12μs vs 50-200ms (TypeScript) or seconds (Python)
-- ✅ **Most comprehensive** - 10 guards vs 2-4 in competitors
+- ✅ **Most comprehensive** - 11 guards vs 2-4 in competitors
 - ✅ **Only library with behavioral threat detection** - Track cross-message attack patterns
 - ✅ **Only library with budget controls** - Track costs for 20+ LLM models
+- ✅ **Only library with topic gating** - Filter domain-specific requests
 - ✅ **Zero dependencies** - No supply chain vulnerabilities
 - ✅ **100% test pass rate** - Validated against real-world attacks
 
@@ -168,13 +170,54 @@ const engine = new GuardrailEngine({
 });
 ```
 
+### Topic Gating (Domain-Specific Filtering)
+
+Block off-topic requests for domain-specific chatbots:
+
+```typescript
+const engine = new GuardrailEngine({
+  guards: [
+    {
+      name: 'topic-gating',
+      config: {
+        // Fast keyword-based filtering (L1/L2)
+        blockedKeywords: ['equation', 'solve', 'code', 'function'],
+        allowedKeywords: ['pricing', 'order', 'support', 'product'],
+
+        // Semantic topic descriptions (L3 LLM validation)
+        blockedTopicsDescription: 'Math problems, coding questions, trivia',
+        allowedTopicsDescription: 'Product questions, pricing, support',
+      },
+    },
+    'pii', // Add other guards
+  ],
+});
+
+// Blocks: "What is 2+2?" or "Write me a function"
+// Allows: "What is your pricing?" or "How do I place an order?"
+```
+
+### Prefilter Mode (Fast L1+L2 Only)
+
+For cost-sensitive scenarios, disable L3 LLM validation:
+
+```typescript
+const engine = new GuardrailEngine({
+  guards: ['injection', 'pii', 'secrets'],
+  prefilterMode: true, // Only use L1+L2 (< 5ms), never L3 (50-200ms)
+  level: 'advanced',
+});
+
+// Runs only L1+L2 detection - perfect for high-volume or cost-constrained apps
+```
+
 **See [Documentation](./docs/README.md) for Behavioral Analysis, Budget Controls, and L3 LLM Validation setup.**
 
 ---
 
 ## 🛡️ What You Get
 
-### 10 Content Guards (100% Test Pass Rate)
+### 11 Content Guards (100% Test Pass Rate)
 
 - **PIIGuard** - 10+ PII types (emails, phones, SSNs, credit cards, etc.)
 - **InjectionGuard** - 100+ patterns (DAN, translation, markdown, DEBUG)
@@ -186,6 +229,7 @@ const engine = new GuardrailEngine({
 - **AdultContentGuard** - NSFW content filtering
 - **CopyrightGuard** - Long verbatim text, copyright markers
 - **ProfanityGuard** - Profanity detection with count-based scoring
+- **TopicGatingGuard** - Domain-specific topic filtering (math, coding, trivia, etc.)
 
 ### Hybrid L1/L2/L3 Detection System
 
