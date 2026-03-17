@@ -135,8 +135,98 @@ export class TopicGatingGuard extends HybridGuard {
     };
   }
 
-  protected detectL2(input: string, context?: Record<string, unknown>): TierResult {
-    return { score: 0 };
+  /**
+   * L2: Pattern-based detection (<5ms)
+   * Enhanced pattern matching for common off-topic categories
+   */
+  protected detectL2(
+    input: string,
+    context?: Record<string, unknown>
+  ): TierResult {
+    let maxScore = (context?.l1 as TierResult)?.score || 0;
+    const detections: string[] = [];
+
+    // Math patterns
+    const mathPatterns = [
+      /\d+\s*[\+\-\*\/÷×]\s*\d+/i, // Arithmetic: 2 + 2, 5 * 3
+      /solve\s+(for\s+)?(x|y|equation)/i, // Solve for x, solve equation
+      /calculate/i, // Calculate
+      /\bequation\b/i, // Equation
+      /integral|derivative|algebra/i, // Advanced math
+    ];
+
+    for (const pattern of mathPatterns) {
+      if (pattern.test(input)) {
+        maxScore = Math.max(maxScore, 0.9);
+        detections.push('math pattern');
+        break;
+      }
+    }
+
+    // Coding patterns
+    const codingPatterns = [
+      /write\s+(a\s+)?(function|code|script|program)/i,
+      /create\s+(a\s+)?(function|script|program)/i,
+      /debug|debugging/i,
+      /\b(javascript|python|java|c\+\+|typescript|ruby)\b/i,
+      /implement\s+(a\s+)?algorithm/i,
+    ];
+
+    for (const pattern of codingPatterns) {
+      if (pattern.test(input)) {
+        maxScore = Math.max(maxScore, 0.9);
+        detections.push('coding pattern');
+        break;
+      }
+    }
+
+    // Trivia patterns
+    const triviaPatterns = [
+      /what\s+is\s+the\s+capital\s+of/i,
+      /who\s+(is|was)\s+the\s+(first|second|third)/i,
+      /when\s+did\s+.+\s+(start|end|happen)/i,
+      /which\s+(country|city|person)/i,
+    ];
+
+    for (const pattern of triviaPatterns) {
+      if (pattern.test(input)) {
+        maxScore = Math.max(maxScore, 0.9);
+        detections.push('trivia pattern');
+        break;
+      }
+    }
+
+    // Business/product patterns (allowed - reduce score)
+    const businessPatterns = [
+      /\b(pricing|price|cost|fee)\b/i,
+      /\b(order|purchase|buy)\b/i,
+      /\b(support|help|assistance)\b/i,
+      /\b(product|service|feature)\b/i,
+    ];
+
+    for (const pattern of businessPatterns) {
+      if (pattern.test(input)) {
+        maxScore = Math.min(maxScore, 0.3);
+        detections.push('business pattern');
+        break;
+      }
+    }
+
+    // Combine with L1 detections (only boost if L1 found blocked keywords, not allowed)
+    const l1Result = context?.l1 as TierResult;
+    const l1Detections = l1Result?.metadata?.detections as string[] || [];
+    const l1FoundBlocked = l1Detections.some(d => d.includes('blocked keyword'));
+
+    if (l1FoundBlocked && detections.length >= 1 && !detections.includes('business pattern')) {
+      // Both L1 and L2 found blocking indicators
+      maxScore = Math.max(maxScore, 0.95);
+    }
+
+    return {
+      score: maxScore,
+      reason: detections.length > 0 ? detections.join(', ') : undefined,
+      metadata: { detections },
+    };
   }
 
   protected async detectL3(
