@@ -20,6 +20,7 @@ import { AdultContentGuard } from '../guards/AdultContentGuard';
 import { CopyrightGuard } from '../guards/CopyrightGuard';
 import { ProfanityGuard } from '../guards/ProfanityGuard';
 import { LeakageGuard } from '../guards/LeakageGuard';
+import { TopicGatingGuard } from '../guards/TopicGatingGuard';
 import { Observability } from '../observability';
 import { CacheManager } from '../cache/CacheManager';
 import { FailModeHandler } from './FailModeHandler';
@@ -356,9 +357,10 @@ export class GuardrailEngine {
       'adult-content',
       'copyright',
       'profanity',
+      // Note: 'topic-gating' is NOT included by default - must be explicitly enabled
     ];
 
-    const guardMap: Record<string, () => Guard> = {
+    const guardMap: Record<string, (config?: any) => Guard> = {
       pii: () => new PIIGuard(detectionConfig),
       injection: () => new InjectionGuard(detectionConfig),
       secrets: () => new SecretGuard(detectionConfig),
@@ -368,7 +370,8 @@ export class GuardrailEngine {
       'adult-content': () => new AdultContentGuard(detectionConfig),
       copyright: () => new CopyrightGuard(detectionConfig),
       profanity: () => new ProfanityGuard(detectionConfig),
-      leakage: () => new LeakageGuard(detectionConfig),
+      leakage: (config?: any) => new LeakageGuard(detectionConfig, config),
+      'topic-gating': (config?: any) => new TopicGatingGuard(detectionConfig, config),
     };
 
     for (const guardName of guardNames) {
@@ -378,9 +381,9 @@ export class GuardrailEngine {
       const factory = guardMap[name];
 
       if (factory) {
-        // Special handling for LeakageGuard with config
-        if (name === 'leakage' && config) {
-          this.guards.push(new LeakageGuard(detectionConfig, config));
+        // Special handling for guards that require config
+        if ((name === 'leakage' || name === 'topic-gating') && config) {
+          this.guards.push(factory(config));
         } else {
           this.guards.push(factory());
         }

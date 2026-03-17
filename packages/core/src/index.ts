@@ -20,6 +20,7 @@ export { BiasGuard } from './guards/BiasGuard';
 export { AdultContentGuard } from './guards/AdultContentGuard';
 export { CopyrightGuard } from './guards/CopyrightGuard';
 export { ProfanityGuard } from './guards/ProfanityGuard';
+export { TopicGatingGuard, type TopicGatingGuardConfig } from './guards/TopicGatingGuard';
 
 // Behavioral Analysis
 export { BehavioralGuard } from './behavioral/BehavioralGuard';
