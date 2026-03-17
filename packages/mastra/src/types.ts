@@ -1,6 +1,5 @@
 import type { GuardrailConfig } from '@llm-guardrails/core';
 import type { DetectionLevel, GuardrailResult } from '@llm-guardrails/core';
-import type { FailMode } from '@llm-guardrails/core';
 
 /**
  * Gateway-level guard configuration
@@ -16,8 +15,8 @@ export interface GatewayGuardConfig {
   /** Detection level */
   level?: DetectionLevel;
 
-  /** Failure mode for gateway guards */
-  failMode?: FailMode;
+  /** Failure mode for gateway guards ('open' or 'closed') */
+  failMode?: 'open' | 'closed';
 
   /** Callback when gateway blocks */
   onBlock?: (result: GuardrailResult) => void;
