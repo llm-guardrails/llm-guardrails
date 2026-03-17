@@ -5,6 +5,62 @@ All notable changes to @llm-guardrails/core will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-03-17
+
+### Added
+
+#### Topic Gating Guard (Domain-Specific Filtering)
+- **`TopicGatingGuard`**: New guard for filtering off-topic requests
+  - Hybrid L1/L2/L3 detection for topic classification
+  - Keyword-based filtering (L1) - blocks/allows specific keywords
+  - Pattern-based detection (L2) - detects math, coding, trivia patterns
+  - Semantic validation (L3) - LLM-based topic understanding for edge cases
+  - Configurable allowed/blocked topics with descriptions
+  - Case-sensitive/insensitive keyword matching
+  - Graceful degradation when L3 unavailable
+- **Use Cases**: Customer support bots, domain-specific assistants, educational chatbots
+- **Configuration Options**:
+  - `blockedKeywords` / `allowedKeywords` - Fast L1/L2 filtering
+  - `blockedTopicsDescription` / `allowedTopicsDescription` - L3 semantic classification
+  - `mode` - 'block-off-topic' (default) or 'allow-only-topics'
+  - `caseSensitive` - Enable/disable case-sensitive keyword matching
+
+#### Prefilter Mode (Fast L1+L2 Only Processing)
+- **`prefilterMode`**: New GuardrailEngine flag to disable L3 across all guards
+  - Only uses L1 (< 1ms) and L2 (< 5ms) detection
+  - Never calls L3 LLM validation (no LLM costs)
+  - Perfect for high-volume or cost-sensitive scenarios
+  - Enables streaming use cases with ultra-low latency
+  - First-pass filtering before custom validation
+- **Performance**: < 5ms latency vs 50-200ms with L3
+- **Cost**: $0 LLM costs (only L1+L2 patterns)
+
+### Enhanced
+- **GuardrailEngine**: Support for TopicGatingGuard registration
+- **Guard Registry**: TopicGatingGuard available via string-based API
+- **Type System**: New `TopicGatingGuardConfig` type exported
+- **Detection Config**: Prefilter mode respects L3 disable flag
+
+### Documentation
+- **README Updates**:
+  - Added TopicGatingGuard to guards list (11 guards total)
+  - Topic Gating usage examples
+  - Prefilter Mode examples
+  - Updated comparison table with topic gating row
+  - Updated test count (433 passing)
+- **L3-LLM-VALIDATION.md**:
+  - Added prefilter mode section
+  - Example 5: TopicGatingGuard with L3 semantic validation
+  - Cost optimization strategies
+- **Performance Benchmark**: topic-gating-performance.ts demonstrating L1/L2/L3 differences
+
+### Testing
+- **Core Package**: 433 tests passing (100%)
+- **New Tests**: 23 new tests added
+  - TopicGatingGuard: 19 tests (L1, L2, L3, edge cases)
+  - Prefilter Mode: 4 tests
+  - Topic Gating Registration: 4 tests
+
 ## [0.3.0] - 2026-03-17
 
 ### Added
