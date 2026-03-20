@@ -5,7 +5,27 @@ All notable changes to @llm-guardrails/core will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.1] - 2026-03-18
+## [@llm-guardrails/mastra@0.3.1] - 2026-03-20
+
+### Added
+- **Public API Methods**: Exposed `checkOutput()` and `checkInput()` methods on processors
+  - Users no longer need to access internal `.engine` property
+  - Clean API: `processor.checkOutput(text)` instead of `processor.engine.checkOutput(text)`
+  - Better encapsulation and cleaner public interface
+- **Stream Processing**: Added `processOutputStream()` to GuardrailOutputProcessor
+  - Now implements full Mastra `Processor` interface
+  - Supports streaming responses with incremental checks
+  - Configurable `checkInterval` parameter for performance tuning
+
+### Fixed
+- **Missing Interface Implementation**: GuardrailOutputProcessor now implements required `processOutputStream` method
+- **API Design**: Processors expose proper public methods instead of requiring access to internal engine
+
+### Enhanced
+- GuardrailStreamProcessor: Added public `quickCheck()` method for fast validation
+- All processors: Added 8 new tests for public API coverage
+
+## [@llm-guardrails/core@0.4.1] - 2026-03-18
 
 ### Fixed
 - **Build Issue**: Rebuild package to include TopicGatingGuard in dist bundle
