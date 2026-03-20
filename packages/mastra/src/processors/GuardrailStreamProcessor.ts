@@ -17,6 +17,22 @@ export class GuardrailStreamProcessor implements Processor {
   }
 
   /**
+   * Check output text with guardrails
+   * Public method for direct output validation
+   */
+  async checkOutput(text: string): Promise<any> {
+    return this.engine.checkOutput(text);
+  }
+
+  /**
+   * Quick check for streaming (uses L1 only)
+   * Public method for fast validation during streaming
+   */
+  async quickCheck(text: string): Promise<any> {
+    return this.engine.quickCheck(text);
+  }
+
+  /**
    * Process output stream with incremental checks
    */
   async *processOutputStream(stream: AsyncIterable<any>): AsyncIterable<any> {

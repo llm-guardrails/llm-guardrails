@@ -23,6 +23,14 @@ export class GuardrailInputProcessor implements Processor {
   }
 
   /**
+   * Check input text with guardrails
+   * Public method for direct input validation
+   */
+  async checkInput(text: string): Promise<any> {
+    return this.engine.checkInput(text);
+  }
+
+  /**
    * Process input before sending to agent
    */
   async processInput(input: any): Promise<any> {
@@ -32,7 +40,7 @@ export class GuardrailInputProcessor implements Processor {
       return input; // No text to check
     }
 
-    const result = await this.engine.checkInput(text);
+    const result = await this.checkInput(text);
 
     if (result.blocked) {
       throw new GuardrailViolation({
