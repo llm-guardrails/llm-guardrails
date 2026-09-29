@@ -102,7 +102,7 @@ export class HateSpeechGuard extends HybridGuard {
       detections.push('ethnic cleansing');
     }
 
-    if (/\[?\w{1,64}\]?\s{1,4}have\s{1,4}no\s{1,4}place\s{1,4}(?:here|in)/i.test(input)) {
+    if (/\[?\w{1,64}\]?\s+have\s+no\s+place\s+(?:here|in)/i.test(input)) {
       maxScore = Math.max(maxScore, 0.9);
       detections.push('exclusionary language');
     }

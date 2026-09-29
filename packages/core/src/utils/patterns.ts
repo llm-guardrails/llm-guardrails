@@ -35,7 +35,7 @@ export const PII_PATTERNS = {
   ipv6: /\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b/g,
 
   // Street addresses
-  streetAddress: /\d{1,10}\s{1,4}[A-Za-z]{1,40}\s{1,4}(Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Way|Place|Pl|Circle|Cir|Parkway|Pkwy),?\s{1,4}(?:[A-Za-z]{1,40},?\s{1,4})?[A-Z]{2}\s{1,4}\d{5}/gi,
+  streetAddress: /\d{1,10}\s+[A-Za-z]{1,40}\s+(Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Way|Place|Pl|Circle|Cir|Parkway|Pkwy),?\s+(?:[A-Za-z]{1,40},?\s+)?[A-Z]{2}\s+\d{5}/gi,
 
   // US ZIP codes
   zipCode: /\b\d{5}(?:-\d{4})?\b/g,

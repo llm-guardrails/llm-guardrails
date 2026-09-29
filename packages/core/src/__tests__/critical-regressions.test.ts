@@ -131,4 +131,18 @@ describe('bounded PII patterns keep matching real values', () => {
     expect((await guard.check('contact: first.last+tag@sub.example.co.uk')).blocked).toBe(true);
     expect((await guard.check('I live at 1600 Pennsylvania Avenue, Washington DC 20500')).blocked).toBe(true);
   });
+
+  it('detects values padded with unusual whitespace runs', async () => {
+    const guard = new PIIGuard();
+    expect(
+      (await guard.check('1600     Pennsylvania\t\tAvenue,   Washington     DC     20500')).blocked
+    ).toBe(true);
+  });
+});
+
+describe('bounded guard patterns are not whitespace-bypassable', () => {
+  it('flags exclusionary language with wide spacing', async () => {
+    const result = await new HateSpeechGuard().check('those people     have     no     place     here');
+    expect(result.blocked).toBe(true);
+  });
 });
