@@ -11,7 +11,7 @@ export class ProfanityGuard extends HybridGuard {
   public readonly name = 'profanity';
   private profaneWords: Set<string>;
 
-  constructor(detectionConfig: HybridDetectionConfig) {
+  constructor(detectionConfig?: HybridDetectionConfig) {
     super(detectionConfig);
 
     // Basic profanity list (extend as needed)

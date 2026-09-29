@@ -37,7 +37,7 @@ export class LeakageGuard extends HybridGuard {
   private customTermsRegex?: RegExp;
 
   constructor(
-    detectionConfig: HybridDetectionConfig,
+    detectionConfig?: HybridDetectionConfig,
     leakageConfig: LeakageGuardConfig = {}
   ) {
     super(detectionConfig);

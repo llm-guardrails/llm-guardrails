@@ -42,7 +42,7 @@ export class SecretGuard extends HybridGuard {
   private secretConfig: Required<SecretGuardConfig>;
 
   constructor(
-    detectionConfig: HybridDetectionConfig,
+    detectionConfig?: HybridDetectionConfig,
     secretConfig: SecretGuardConfig = {}
   ) {
     super(detectionConfig);

@@ -45,7 +45,7 @@ export class TopicGatingGuard extends HybridGuard {
   private allowedKeywordsRegex?: RegExp;
 
   constructor(
-    detectionConfig: HybridDetectionConfig,
+    detectionConfig?: HybridDetectionConfig,
     guardConfig: TopicGatingGuardConfig = {}
   ) {
     super(detectionConfig);
@@ -161,7 +161,7 @@ export class TopicGatingGuard extends HybridGuard {
 
     // Math patterns
     const mathPatterns = [
-      /\d+\s*[\+\-\*\/÷×]\s*\d+/i, // Arithmetic: 2 + 2, 5 * 3
+      /\d{1,15}\s{0,4}[+\-*/÷×]\s{0,4}\d{1,15}/i, // Arithmetic: 2 + 2, 5 * 3
       /solve\s+(for\s+)?(x|y|equation)/i, // Solve for x, solve equation
       /calculate/i, // Calculate
       /\bequation\b/i, // Equation

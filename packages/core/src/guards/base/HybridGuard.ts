@@ -19,7 +19,7 @@ export abstract class HybridGuard extends DetectionLayer implements Guard {
   public abstract readonly name: string;
 
   constructor(
-    config: HybridDetectionConfig,
+    config?: HybridDetectionConfig,
     options?: {
       name?: string;
       llmConfig?: LLMConfig;

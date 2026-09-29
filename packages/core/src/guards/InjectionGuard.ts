@@ -37,7 +37,7 @@ export class InjectionGuard extends HybridGuard {
   private compiledPatterns: RegExp[];
 
   constructor(
-    detectionConfig: HybridDetectionConfig,
+    detectionConfig?: HybridDetectionConfig,
     injectionConfig: InjectionGuardConfig = {}
   ) {
     super(detectionConfig);
