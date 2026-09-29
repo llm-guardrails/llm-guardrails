@@ -74,7 +74,7 @@ describe('adversarial inputs do not stall the event loop', () => {
 
   it('scans repeated word characters quickly', async () => {
     const engine = new GuardrailEngine({
-      guards: ['hatespeech', 'bias', 'toxicity'],
+      guards: ['hate-speech', 'bias', 'toxicity'],
       level: 'advanced',
     });
     const start = Date.now();
