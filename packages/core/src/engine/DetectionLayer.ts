@@ -35,6 +35,16 @@ export const DETECTION_PRESETS: Record<string, HybridDetectionConfig> = {
 };
 
 /**
+ * Detection config applied when a guard is constructed without one
+ */
+export function defaultDetectionConfig(): HybridDetectionConfig {
+  return {
+    tier1: { ...DETECTION_PRESETS.standard.tier1 },
+    tier2: { ...DETECTION_PRESETS.standard.tier2 },
+  };
+}
+
+/**
  * Base class for hybrid detection layers
  */
 export abstract class DetectionLayer {
@@ -42,7 +52,7 @@ export abstract class DetectionLayer {
   protected llmConfig?: LLMConfig;
 
   constructor(
-    protected config: HybridDetectionConfig,
+    protected config: HybridDetectionConfig = defaultDetectionConfig(),
     options?: {
       name?: string;
       llmConfig?: LLMConfig;

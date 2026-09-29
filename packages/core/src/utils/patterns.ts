@@ -7,7 +7,7 @@
  */
 export const PII_PATTERNS = {
   // Email addresses (standard)
-  email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
+  email: /\b[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,24}\b/g,
 
   // Obfuscated emails (must have "at" or "@", not just "dot")
   // Matches: "user at domain dot com" or "user[at]domain[dot]com"
@@ -35,7 +35,7 @@ export const PII_PATTERNS = {
   ipv6: /\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b/g,
 
   // Street addresses
-  streetAddress: /\d+\s+[A-Za-z]+\s+(Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Way|Place|Pl|Circle|Cir|Parkway|Pkwy),?\s+(?:[A-Za-z]+,?\s+)?[A-Z]{2}\s+\d{5}/gi,
+  streetAddress: /\d{1,10}\s+[A-Za-z]{1,40}\s+(Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Way|Place|Pl|Circle|Cir|Parkway|Pkwy),?\s+(?:[A-Za-z]{1,40},?\s+)?[A-Z]{2}\s+\d{5}/gi,
 
   // US ZIP codes
   zipCode: /\b\d{5}(?:-\d{4})?\b/g,
@@ -186,9 +186,6 @@ export const INJECTION_PATTERNS = [
   /output\s+the\s+translation\s+as\s+["'].*["']\s+instead/i,
   /BEGIN\s+REPROGRAMMING.*(?:NEW\s+INSTRUCTION|EXPECTED\s+OUTPUT)/i,
   /(?:the\s+)?assistant\s+is\s+(?:in\s+)?error.*(?:offline|unrestricted)/i,
-
-  // Context overflow
-  /(.{1000,})/,
 ];
 
 /**

@@ -37,7 +37,7 @@ export class PIIGuard extends HybridGuard {
   private piiConfig: PIIGuardConfig;
 
   constructor(
-    detectionConfig: HybridDetectionConfig,
+    detectionConfig?: HybridDetectionConfig,
     piiConfig: PIIGuardConfig = {}
   ) {
     super(detectionConfig);

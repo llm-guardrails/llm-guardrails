@@ -35,7 +35,7 @@ export class ToxicityGuard extends HybridGuard {
   private toxicKeywords: Set<string>;
 
   constructor(
-    detectionConfig: HybridDetectionConfig,
+    detectionConfig?: HybridDetectionConfig,
     toxicityConfig: ToxicityGuardConfig = {}
   ) {
     super(detectionConfig);
